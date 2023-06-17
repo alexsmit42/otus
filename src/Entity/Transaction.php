@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\TransactionRepository;
+use DateTime;
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[ORM\Index(columns: ['method_id'], name: 'transaction__method_id__index')]
+#[ORM\Index(columns: ['payer_id'], name: 'transaction__payer_id__index')]
+#[ORM\Index(columns: ['currency_id'], name: 'transaction__currency_id__index')]
+class Transaction
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column]
+    private ?float $amount = null;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private ?int $status = null;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private ?int $direction = null;
+
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $payment_details = null;
+
+    #[ORM\Column]
+    private ?DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?DateTime $updated_at = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
+    private ?Currency $currency = null;
+
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'payer_id', referencedColumnName: 'id')]
+    private ?User $payer = null;
+
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id')]
+    private ?Method $method = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getAmount(): ?float
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(float $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDirection(): ?int
+    {
+        return $this->direction;
+    }
+
+    public function setDirection(int $direction): static
+    {
+        $this->direction = $direction;
+
+        return $this;
+    }
+
+    public function getPaymentDetails(): ?string
+    {
+        return $this->payment_details;
+    }
+
+    public function setPaymentDetails(?string $payment_details): static
+    {
+        $this->payment_details = $payment_details;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAt(DateTimeImmutable $created_at): static
+    {
+        $this->created_at = new DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?DateTime
+    {
+        return $this->updated_at;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(DateTime $updated_at): static
+    {
+        $this->updated_at = new DateTime();
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
+
+        return $this;
+    }
+
+    public function getPayer(): ?User
+    {
+        return $this->payer;
+    }
+
+    public function setPayer(?User $payer): static
+    {
+        $this->payer = $payer;
+
+        return $this;
+    }
+
+    public function getMethod(): ?Method
+    {
+        return $this->method;
+    }
+
+    public function setMethod(?Method $method): static
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+}
