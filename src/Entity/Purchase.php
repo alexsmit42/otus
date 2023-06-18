@@ -7,9 +7,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
-#[ORM\HasLifecycleCallbacks]
 #[ORM\Index(columns: ['buyer_id'], name: 'purchase__buyer_id__index')]
 class Purchase
 {
@@ -27,6 +27,7 @@ class Purchase
     private Collection $product;
 
     #[ORM\Column]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(type: Types::SMALLINT)]

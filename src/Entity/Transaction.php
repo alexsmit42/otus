@@ -7,9 +7,9 @@ use DateTime;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
-#[ORM\HasLifecycleCallbacks]
 #[ORM\Index(columns: ['method_id'], name: 'transaction__method_id__index')]
 #[ORM\Index(columns: ['payer_id'], name: 'transaction__payer_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'transaction__currency_id__index')]
@@ -33,9 +33,11 @@ class Transaction
     private ?string $payment_details = null;
 
     #[ORM\Column]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?DateTimeImmutable $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Gedmo\Timestampable(on: 'update')]
     private ?DateTime $updated_at = null;
 
     #[ORM\ManyToOne]
@@ -111,7 +113,6 @@ class Transaction
         return $this->created_at;
     }
 
-    #[ORM\PrePersist]
     public function setCreatedAt(DateTimeImmutable $created_at): static
     {
         $this->created_at = new DateTimeImmutable();
@@ -124,8 +125,6 @@ class Transaction
         return $this->updated_at;
     }
 
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
     public function setUpdatedAt(DateTime $updated_at): static
     {
         $this->updated_at = new DateTime();
