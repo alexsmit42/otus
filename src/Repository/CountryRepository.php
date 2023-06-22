@@ -6,14 +6,6 @@ use App\Entity\Country;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Country>
- *
- * @method Country|null find($id, $lockMode = null, $lockVersion = null)
- * @method Country|null findOneBy(array $criteria, array $orderBy = null)
- * @method Country[]    findAll()
- * @method Country[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class CountryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,21 +13,17 @@ class CountryRepository extends ServiceEntityRepository
         parent::__construct($registry, Country::class);
     }
 
-    public function save(Country $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
+    public function getCountMethodsByCountry(): array {
+        $qb = $this->getEntityManager()->createQueryBuilder();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+        $qb
+            ->select('c.id, c.name, COUNT(m.id) AS total')
+            ->from(Country::class, 'c')
+            ->leftJoin('c.methods', 'm')
+            ->groupBy('c.id')
+            ->orderBy('total', 'DESC')
+        ;
 
-    public function remove(Country $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        return $qb->getQuery()->getResult();
     }
 }

@@ -3,17 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Currency;
+use App\Entity\Transaction;
+use App\Entity\User;
+use App\Enum\Status;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Currency>
- *
- * @method Currency|null find($id, $lockMode = null, $lockVersion = null)
- * @method Currency|null findOneBy(array $criteria, array $orderBy = null)
- * @method Currency[]    findAll()
- * @method Currency[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class CurrencyRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,21 +16,57 @@ class CurrencyRepository extends ServiceEntityRepository
         parent::__construct($registry, Currency::class);
     }
 
-    public function save(Currency $entity, bool $flush = false): void
+    public function getCountUsersByCurrency(): array
     {
-        $this->getEntityManager()->persist($entity);
+        $qb = $this->getEntityManager()->createQueryBuilder();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $qb
+            ->select('c.id, c.iso, COUNT(u.id) AS total')
+            ->from(User::class, 'u')
+            ->leftJoin('u.currency', 'c')
+            ->groupBy('c.id')
+            ->orderBy('total', 'DESC');
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function remove(Currency $entity, bool $flush = false): void
+    public function getCountTransactionsByCurrency(?Status $status = null): array
     {
-        $this->getEntityManager()->remove($entity);
+        $qb = $this->getEntityManager()->createQueryBuilder();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
+        $qb
+            ->select('c.id, c.iso, COUNT(t.id) AS total')
+            ->from(Transaction::class, 't')
+            ->leftJoin('t.currency', 'c')
+            ->groupBy('c.id')
+            ->orderBy('total', 'DESC');
+
+        if ($status) {
+            $qb
+                ->where($qb->expr()->eq('t.status', ':status'))
+                ->setParameter('status', $status->value);
         }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getSumTransactionsByCurrency(?Status $status = null): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb
+            ->select('c.id, c.iso, SUM(t.amount) AS sum')
+            ->from(Transaction::class, 't')
+            ->leftJoin('t.currency', 'c')
+            ->groupBy('c.id')
+            ->orderBy('total', 'DESC');
+
+        if ($status) {
+            $qb
+                ->where($qb->expr()->eq('t.status', ':status'))
+                ->setParameter('status', $status->value);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

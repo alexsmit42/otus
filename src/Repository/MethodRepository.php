@@ -3,17 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Method;
+use App\Entity\Transaction;
+use App\Enum\Status;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Method>
- *
- * @method Method|null find($id, $lockMode = null, $lockVersion = null)
- * @method Method|null findOneBy(array $criteria, array $orderBy = null)
- * @method Method[]    findAll()
- * @method Method[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class MethodRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,21 +15,26 @@ class MethodRepository extends ServiceEntityRepository
         parent::__construct($registry, Method::class);
     }
 
-    public function save(Method $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
+    public function findTransactionsByStatus(
+        Method $method,
+        ?Status $status = null
+    ): array {
+        $qb = $this->getEntityManager()->createQueryBuilder();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
+        $qb
+            ->select('t')
+            ->from(Transaction::class, 't')
+            ->where($qb->expr()->eq('t.method_id', ':method_id'))
+            ->setParameter('method_id', $method->getId())
+            ->orderBy('t.id', 'DESC')
+        ;
+
+        if ($status) {
+            $qb
+                ->andWhere($qb->expr()->eq('t.status', ':status'))
+                ->setParameter('status', $status->value);
         }
-    }
 
-    public function remove(Method $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        return $qb->getQuery()->getResult();
     }
 }
