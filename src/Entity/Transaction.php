@@ -14,6 +14,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Index(columns: ['method_id'], name: 'transaction__method_id__index')]
 #[ORM\Index(columns: ['payer_id'], name: 'transaction__payer_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'transaction__currency_id__index')]
+#[ORM\Index(columns: ['created_at'], name: 'transaction__created_at__index')]
+#[ORM\Index(columns: ['status'], name: 'transaction__status__index')]
+#[ORM\Index(columns: ['direction'], name: 'transaction__direction__index')]
 class Transaction
 {
     #[ORM\Id]

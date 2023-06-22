@@ -10,6 +10,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity]
 #[ORM\Index(columns: ['buyer_id'], name: 'purchase__buyer_id__index')]
+#[ORM\Index(columns: ['created_at'], name: 'purchase__created_at__index')]
+#[ORM\Index(columns: ['status'], name: 'purchase__status__index')]
 class Purchase
 {
     #[ORM\Id]
