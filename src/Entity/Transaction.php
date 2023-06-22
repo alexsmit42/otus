@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\TransactionRepository;
+use App\Enum\Direction;
+use App\Enum\Status;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-#[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Entity]
 #[ORM\Index(columns: ['method_id'], name: 'transaction__method_id__index')]
 #[ORM\Index(columns: ['payer_id'], name: 'transaction__payer_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'transaction__currency_id__index')]
@@ -166,5 +167,21 @@ class Transaction
         $this->method = $method;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'              => $this->getId(),
+            'buyer'           => $this->getPayer()->toArray(),
+            'method'          => $this->getMethod()->toArray(),
+            'amount'          => $this->getAmount(),
+            'currency'        => $this->getCurrency()->toArray(),
+            'payment_details' => $this->getPaymentDetails(),
+            'status'          => Status::from($this->getStatus()),
+            'direction'       => Direction::from($this->getDirection()),
+            'created_at'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at'      => $this->getUpdatedAt()->format('Y-m-d H:i:s'),
+        ];
     }
 }

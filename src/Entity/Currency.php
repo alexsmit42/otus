@@ -2,10 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\CurrencyRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CurrencyRepository::class)]
+#[ORM\Entity]
 class Currency
 {
     #[ORM\Id]
@@ -46,5 +45,14 @@ class Currency
         $this->rate = $rate;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'   => $this->getId(),
+            'iso'  => $this->getIso(),
+            'rate' => $this->getRate(),
+        ];
     }
 }

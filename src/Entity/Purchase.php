@@ -2,14 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\PurchaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-#[ORM\Entity(repositoryClass: PurchaseRepository::class)]
+#[ORM\Entity]
 #[ORM\Index(columns: ['buyer_id'], name: 'purchase__buyer_id__index')]
 class Purchase
 {
@@ -24,7 +23,7 @@ class Purchase
     private ?User $buyer = null;
 
     #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'purchases')]
-    private Collection $product;
+    private Collection $products;
 
     #[ORM\Column]
     #[Gedmo\Timestampable(on: 'create')]
@@ -35,7 +34,7 @@ class Purchase
 
     public function __construct()
     {
-        $this->product = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -58,15 +57,15 @@ class Purchase
     /**
      * @return Collection<int, Product>
      */
-    public function getProduct(): Collection
+    public function getProducts(): Collection
     {
-        return $this->product;
+        return $this->products;
     }
 
     public function addProduct(Product $product): static
     {
-        if (!$this->product->contains($product)) {
-            $this->product->add($product);
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
         }
 
         return $this;
@@ -74,7 +73,7 @@ class Purchase
 
     public function removeProduct(Product $product): static
     {
-        $this->product->removeElement($product);
+        $this->products->removeElement($product);
 
         return $this;
     }
@@ -102,5 +101,18 @@ class Purchase
         $this->status = $status;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'         => $this->getId(),
+            'buyer'      => $this->getBuyer(),
+            'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+            'products'   => array_map(
+                static fn(Product $product) => $product->toArray(),
+                $this->getProducts()->toArray()
+            ),
+        ];
     }
 }

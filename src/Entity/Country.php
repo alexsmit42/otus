@@ -2,12 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\CountryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CountryRepository::class)]
+#[ORM\Entity]
 class Country
 {
     #[ORM\Id]
@@ -26,7 +25,7 @@ class Country
 
     public function __construct()
     {
-        $this->methods = new ArrayCollection();
+        $this->methods  = new ArrayCollection();
         $this->products = new ArrayCollection();
     }
 
@@ -99,5 +98,13 @@ class Country
         }
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'   => $this->getId(),
+            'name' => $this->getName(),
+        ];
     }
 }

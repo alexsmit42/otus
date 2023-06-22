@@ -2,12 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Entity]
 #[ORM\Table(name: '`user`')]
 #[ORM\Index(columns: ['country_id'], name: 'user__country_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'user__currency_id__index')]
@@ -24,7 +23,7 @@ class User
     #[ORM\Column(options: [
         'default' => 0,
     ])]
-    private ?float $balance = null;
+    private ?float $balance = 0;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -45,7 +44,7 @@ class User
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
-        $this->purchases = new ArrayCollection();
+        $this->purchases    = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -159,5 +158,16 @@ class User
         }
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'       => $this->getId(),
+            'login'    => $this->getLogin(),
+            'balance'  => $this->getBalance(),
+            'country'  => $this->getCountry()->toArray(),
+            'currency' => $this->getCurrency()->toArray(),
+        ];
     }
 }

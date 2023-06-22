@@ -2,12 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ORM\Entity]
 #[ORM\Index(columns: ['currency_id'], name: 'product__currency_id__index')]
 #[ORM\Index(columns: ['country_id'], name: 'product__country_id__index')]
 class Product
@@ -32,7 +31,7 @@ class Product
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
     private ?Country $country = null;
 
-    #[ORM\ManyToMany(targetEntity: Purchase::class, mappedBy: 'product')]
+    #[ORM\ManyToMany(targetEntity: Purchase::class, mappedBy: 'products')]
     private Collection $purchases;
 
     public function __construct()
@@ -118,5 +117,16 @@ class Product
         }
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'       => $this->getId(),
+            'title'    => $this->getTitle(),
+            'amount'   => $this->getAmount(),
+            'currency' => $this->getCurrency()->toArray(),
+            'country'  => $this->getCountry()->toArray(),
+        ];
     }
 }

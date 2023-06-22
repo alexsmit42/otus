@@ -2,12 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\MethodRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: MethodRepository::class)]
+#[ORM\Entity]
 class Method
 {
     #[ORM\Id]
@@ -32,7 +31,7 @@ class Method
 
     public function __construct()
     {
-        $this->countries = new ArrayCollection();
+        $this->countries    = new ArrayCollection();
         $this->transactions = new ArrayCollection();
     }
 
@@ -132,5 +131,15 @@ class Method
         }
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'        => $this->getId(),
+            'name'      => $this->getName(),
+            'min_limit' => $this->getMinLimit(),
+            'max_limit' => $this->getMaxLimit(),
+        ];
     }
 }
