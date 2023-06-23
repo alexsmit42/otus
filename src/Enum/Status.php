@@ -2,6 +2,9 @@
 
 namespace App\Enum;
 
+/**
+ * Status for Transaction and Purchase
+ */
 enum Status: int
 {
     case NEW = 1;
