@@ -19,7 +19,7 @@ class Product
     #[ORM\Column(length: 100)]
     private string $title;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     private float $amount;
 
     #[ORM\ManyToOne]

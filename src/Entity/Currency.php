@@ -15,7 +15,7 @@ class Currency
     #[ORM\Column(length: 3, unique: true)]
     private string $iso;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'decimal', precision: 12, scale: 6)]
     private float $rate;
 
     public function getId(): ?int

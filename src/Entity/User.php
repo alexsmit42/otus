@@ -20,9 +20,13 @@ class User
     #[ORM\Column(length: 50, unique: true)]
     private ?string $login = null;
 
-    #[ORM\Column(options: [
-        'default' => 0,
-    ])]
+    #[ORM\Column(
+        type: 'decimal',
+        precision: 10,
+        scale: 2,
+        options: [
+            'default' => 0,
+        ])]
     private float $balance = 0;
 
     #[ORM\ManyToOne]

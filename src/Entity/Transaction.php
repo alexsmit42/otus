@@ -24,7 +24,7 @@ class Transaction
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     private float $amount;
 
     #[ORM\Column(type: Types::SMALLINT)]
