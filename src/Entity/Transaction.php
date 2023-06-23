@@ -25,29 +25,29 @@ class Transaction
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?float $amount = null;
+    private float $amount;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $status = null;
+    private int $status;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $direction = null;
+    private int $direction;
 
     #[ORM\Column(length: 40, nullable: true)]
     private ?string $payment_details = null;
 
     #[ORM\Column]
     #[Gedmo\Timestampable(on: 'create')]
-    private ?DateTimeImmutable $created_at = null;
+    private DateTimeImmutable $created_at;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Gedmo\Timestampable(on: 'update')]
-    private ?DateTime $updated_at = null;
+    private DateTime $updated_at;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
-    private ?Currency $currency = null;
+    private Currency $currency;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
@@ -64,7 +64,7 @@ class Transaction
         return $this->id;
     }
 
-    public function getAmount(): ?float
+    public function getAmount(): float
     {
         return $this->amount;
     }
@@ -76,7 +76,7 @@ class Transaction
         return $this;
     }
 
-    public function getStatus(): ?int
+    public function getStatus(): int
     {
         return $this->status;
     }
@@ -88,7 +88,7 @@ class Transaction
         return $this;
     }
 
-    public function getDirection(): ?int
+    public function getDirection(): int
     {
         return $this->direction;
     }
@@ -112,7 +112,7 @@ class Transaction
         return $this;
     }
 
-    public function getCreatedAt(): ?DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->created_at;
     }
@@ -124,7 +124,7 @@ class Transaction
         return $this;
     }
 
-    public function getUpdatedAt(): ?DateTime
+    public function getUpdatedAt(): DateTime
     {
         return $this->updated_at;
     }
@@ -136,12 +136,12 @@ class Transaction
         return $this;
     }
 
-    public function getCurrency(): ?Currency
+    public function getCurrency(): Currency
     {
         return $this->currency;
     }
 
-    public function setCurrency(?Currency $currency): static
+    public function setCurrency(Currency $currency): static
     {
         $this->currency = $currency;
 

@@ -17,19 +17,19 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column]
-    private ?float $amount = null;
+    private float $amount;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
-    private ?Currency $currency = null;
+    private Currency $currency;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
-    private ?Country $country = null;
+    private Country $country;
 
     #[ORM\ManyToMany(targetEntity: Purchase::class, mappedBy: 'products')]
     private Collection $purchases;
@@ -44,7 +44,7 @@ class Product
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -56,7 +56,7 @@ class Product
         return $this;
     }
 
-    public function getAmount(): ?float
+    public function getAmount(): float
     {
         return $this->amount;
     }
@@ -68,24 +68,24 @@ class Product
         return $this;
     }
 
-    public function getCurrency(): ?Currency
+    public function getCurrency(): Currency
     {
         return $this->currency;
     }
 
-    public function setCurrency(?Currency $currency): static
+    public function setCurrency(Currency $currency): static
     {
         $this->currency = $currency;
 
         return $this;
     }
 
-    public function getCountry(): ?Country
+    public function getCountry(): Country
     {
         return $this->country;
     }
 
-    public function setCountry(?Country $country): static
+    public function setCountry(Country $country): static
     {
         $this->country = $country;
 
@@ -105,15 +105,6 @@ class Product
         if (!$this->purchases->contains($purchase)) {
             $this->purchases->add($purchase);
             $purchase->addProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removePurchase(Purchase $purchase): static
-    {
-        if ($this->purchases->removeElement($purchase)) {
-            $purchase->removeProduct($this);
         }
 
         return $this;

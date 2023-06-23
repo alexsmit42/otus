@@ -23,17 +23,17 @@ class User
     #[ORM\Column(options: [
         'default' => 0,
     ])]
-    private ?float $balance = 0;
+    private float $balance = 0;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
-    private ?Currency $currency = null;
+    private Currency $currency;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
-    private ?Country $country = null;
+    private Country $country;
 
     #[ORM\OneToMany(mappedBy: 'payer', targetEntity: Transaction::class)]
     private Collection $transactions;
@@ -52,7 +52,7 @@ class User
         return $this->id;
     }
 
-    public function getLogin(): ?string
+    public function getLogin(): string
     {
         return $this->login;
     }
@@ -64,7 +64,7 @@ class User
         return $this;
     }
 
-    public function getBalance(): ?float
+    public function getBalance(): float
     {
         return $this->balance;
     }
@@ -76,24 +76,24 @@ class User
         return $this;
     }
 
-    public function getCurrency(): ?Currency
+    public function getCurrency(): Currency
     {
         return $this->currency;
     }
 
-    public function setCurrency(?Currency $currency): static
+    public function setCurrency(Currency $currency): static
     {
         $this->currency = $currency;
 
         return $this;
     }
 
-    public function getCountry(): ?Country
+    public function getCountry(): Country
     {
         return $this->country;
     }
 
-    public function setCountry(?Country $country): static
+    public function setCountry(Country $country): static
     {
         $this->country = $country;
 

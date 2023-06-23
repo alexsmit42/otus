@@ -15,13 +15,13 @@ class Method
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column(nullable: true)]
-    private ?float $min_limit = null;
+    private float $min_limit;
 
     #[ORM\Column(nullable: true)]
-    private ?float $max_limit = null;
+    private float $max_limit;
 
     #[ORM\ManyToMany(targetEntity: Country::class, mappedBy: 'methods')]
     private Collection $countries;
@@ -40,7 +40,7 @@ class Method
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -52,7 +52,7 @@ class Method
         return $this;
     }
 
-    public function getMinLimit(): ?float
+    public function getMinLimit(): float
     {
         return $this->min_limit;
     }
@@ -64,7 +64,7 @@ class Method
         return $this;
     }
 
-    public function getMaxLimit(): ?float
+    public function getMaxLimit(): float
     {
         return $this->max_limit;
     }
@@ -116,18 +116,6 @@ class Method
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
             $transaction->setMethod($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTransaction(Transaction $transaction): static
-    {
-        if ($this->transactions->removeElement($transaction)) {
-            // set the owning side to null (unless already changed)
-            if ($transaction->getMethod() === $this) {
-                $transaction->setMethod(null);
-            }
         }
 
         return $this;

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -29,10 +30,10 @@ class Purchase
 
     #[ORM\Column]
     #[Gedmo\Timestampable(on: 'create')]
-    private ?\DateTimeImmutable $created_at = null;
+    private DateTimeImmutable $created_at;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $status = null;
+    private int $status;
 
     public function __construct()
     {
@@ -44,7 +45,7 @@ class Purchase
         return $this->id;
     }
 
-    public function getBuyer(): ?User
+    public function getBuyer(): User
     {
         return $this->buyer;
     }
@@ -80,20 +81,20 @@ class Purchase
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->created_at;
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
 
         return $this;
     }
 
-    public function getStatus(): ?int
+    public function getStatus(): int
     {
         return $this->status;
     }

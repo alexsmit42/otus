@@ -15,7 +15,7 @@ class Country
     private ?int $id = null;
 
     #[ORM\Column(length: 40, unique: true)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\ManyToMany(targetEntity: Method::class, inversedBy: 'countries')]
     private Collection $methods;
@@ -34,7 +34,7 @@ class Country
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -76,28 +76,6 @@ class Country
     public function getProducts(): Collection
     {
         return $this->products;
-    }
-
-    public function addProduct(Product $product): static
-    {
-        if (!$this->products->contains($product)) {
-            $this->products->add($product);
-            $product->setCountry($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProduct(Product $product): static
-    {
-        if ($this->products->removeElement($product)) {
-            // set the owning side to null (unless already changed)
-            if ($product->getCountry() === $this) {
-                $product->setCountry(null);
-            }
-        }
-
-        return $this;
     }
 
     public function toArray(): array

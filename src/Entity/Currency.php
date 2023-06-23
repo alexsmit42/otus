@@ -13,17 +13,17 @@ class Currency
     private ?int $id = null;
 
     #[ORM\Column(length: 3, unique: true)]
-    private ?string $iso = null;
+    private string $iso;
 
     #[ORM\Column]
-    private ?float $rate = null;
+    private float $rate;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getIso(): ?string
+    public function getIso(): string
     {
         return $this->iso;
     }
@@ -35,7 +35,7 @@ class Currency
         return $this;
     }
 
-    public function getRate(): ?float
+    public function getRate(): float
     {
         return $this->rate;
     }
