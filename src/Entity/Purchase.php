@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity]
@@ -25,7 +27,9 @@ class Purchase
     #[ORM\JoinColumn(name: 'buyer_id', referencedColumnName: 'id')]
     private ?User $buyer = null;
 
-    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'purchases')]
+    #[ORM\ManyToMany(targetEntity: Product::class)]
+    #[JoinColumn(name: 'purchase_id', referencedColumnName: 'id')]
+    #[InverseJoinColumn(name: 'product_id', referencedColumnName: 'id')]
     private Collection $products;
 
     #[ORM\Column]

@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -31,12 +29,8 @@ class Product
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
     private Country $country;
 
-    #[ORM\ManyToMany(targetEntity: Purchase::class, mappedBy: 'products')]
-    private Collection $purchases;
-
     public function __construct()
     {
-        $this->purchases = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -88,24 +82,6 @@ class Product
     public function setCountry(Country $country): static
     {
         $this->country = $country;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Purchase>
-     */
-    public function getPurchases(): Collection
-    {
-        return $this->purchases;
-    }
-
-    public function addPurchase(Purchase $purchase): static
-    {
-        if (!$this->purchases->contains($purchase)) {
-            $this->purchases->add($purchase);
-            $purchase->addProduct($this);
-        }
 
         return $this;
     }

@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
 
 #[ORM\Entity]
 class Method
@@ -18,21 +20,19 @@ class Method
     private string $name;
 
     #[ORM\Column(nullable: true)]
-    private float $min_limit;
+    private ?float $min_limit = null;
 
     #[ORM\Column(nullable: true)]
-    private float $max_limit;
+    private ?float $max_limit = null;
 
-    #[ORM\ManyToMany(targetEntity: Country::class, mappedBy: 'methods')]
+    #[ORM\ManyToMany(targetEntity: Country::class)]
+    #[JoinColumn(name: 'method_id', referencedColumnName: 'id')]
+    #[InverseJoinColumn(name: 'country_id', referencedColumnName: 'id')]
     private Collection $countries;
-
-    #[ORM\OneToMany(mappedBy: 'method', targetEntity: Transaction::class)]
-    private Collection $transactions;
 
     public function __construct()
     {
         $this->countries    = new ArrayCollection();
-        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -52,7 +52,7 @@ class Method
         return $this;
     }
 
-    public function getMinLimit(): float
+    public function getMinLimit(): ?float
     {
         return $this->min_limit;
     }
@@ -64,7 +64,7 @@ class Method
         return $this;
     }
 
-    public function getMaxLimit(): float
+    public function getMaxLimit(): ?float
     {
         return $this->max_limit;
     }
@@ -88,7 +88,6 @@ class Method
     {
         if (!$this->countries->contains($country)) {
             $this->countries->add($country);
-            $country->addMethod($this);
         }
 
         return $this;
@@ -96,27 +95,7 @@ class Method
 
     public function removeCountry(Country $country): static
     {
-        if ($this->countries->removeElement($country)) {
-            $country->removeMethod($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Transaction>
-     */
-    public function getTransactions(): Collection
-    {
-        return $this->transactions;
-    }
-
-    public function addTransaction(Transaction $transaction): static
-    {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions->add($transaction);
-            $transaction->setMethod($this);
-        }
+        $this->countries->removeElement($country);
 
         return $this;
     }
