@@ -50,12 +50,12 @@ class Transaction
     private Currency $currency;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
-    #[ORM\JoinColumn(name: 'payer_id', referencedColumnName: 'id')]
-    private ?User $payer = null;
+    #[ORM\JoinColumn(name: 'payer_id', referencedColumnName: 'id', nullable: false)]
+    private User $payer;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id')]
-    private ?Method $method = null;
+    #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id', nullable: false)]
+    private Method $method;
 
     public function getId(): ?int
     {
@@ -146,24 +146,24 @@ class Transaction
         return $this;
     }
 
-    public function getPayer(): ?User
+    public function getPayer(): User
     {
         return $this->payer;
     }
 
-    public function setPayer(?User $payer): static
+    public function setPayer(User $payer): static
     {
         $this->payer = $payer;
 
         return $this;
     }
 
-    public function getMethod(): ?Method
+    public function getMethod(): Method
     {
         return $this->method;
     }
 
-    public function setMethod(?Method $method): static
+    public function setMethod(Method $method): static
     {
         $this->method = $method;
 
@@ -179,8 +179,8 @@ class Transaction
             'amount'          => $this->getAmount(),
             'currency'        => $this->getCurrency()->toArray(),
             'payment_details' => $this->getPaymentDetails(),
-            'status'          => Status::from($this->getStatus()),
-            'direction'       => Direction::from($this->getDirection()),
+            'status'          => $this->getStatus(),
+            'direction'       => $this->getDirection(),
             'created_at'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at'      => $this->getUpdatedAt()->format('Y-m-d H:i:s'),
         ];

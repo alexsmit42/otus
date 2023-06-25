@@ -116,6 +116,7 @@ class Purchase
             'id'         => $this->getId(),
             'buyer'      => $this->getBuyer(),
             'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+            'status'     => $this->getStatus(),
             'products'   => array_map(
                 static fn(Product $product) => $product->toArray(),
                 $this->getProducts()->toArray()
