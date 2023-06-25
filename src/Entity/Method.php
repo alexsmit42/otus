@@ -19,10 +19,10 @@ class Method
     #[ORM\Column(length: 40)]
     private string $name;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $min_limit = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $max_limit = null;
 
     #[ORM\ManyToMany(targetEntity: Country::class)]

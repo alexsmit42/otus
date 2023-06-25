@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity]
+#[UniqueConstraint(name: "uniq__country_name", columns: ["name"])]
 class Country
 {
     #[ORM\Id]

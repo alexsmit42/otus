@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\Status;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,7 +24,6 @@ class Purchase
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'purchases')]
-    #[ORM\JoinColumn(nullable: false)]
     #[ORM\JoinColumn(name: 'buyer_id', referencedColumnName: 'id')]
     private ?User $buyer = null;
 
@@ -36,8 +36,8 @@ class Purchase
     #[Gedmo\Timestampable(on: 'create')]
     private DateTimeImmutable $created_at;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private int $status;
+    #[ORM\Column(type: Types::SMALLINT, enumType: Status::class)]
+    private Status $status;
 
     public function __construct()
     {
@@ -98,12 +98,12 @@ class Purchase
         return $this;
     }
 
-    public function getStatus(): int
+    public function getStatus(): Status
     {
         return $this->status;
     }
 
-    public function setStatus(int $status): static
+    public function setStatus(Status $status): static
     {
         $this->status = $status;
 

@@ -21,11 +21,10 @@ class Product
     private float $amount;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
     #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
     private Currency $currency;
 
-    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
     private Country $country;
 
