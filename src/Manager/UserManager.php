@@ -35,10 +35,17 @@ class UserManager
         return $this->entityManager->getRepository(User::class)->findOneBy(['login' => $login]);
     }
 
-    public function findAvailableMethods(User $user, Direction $direction = Direction::DEPOSIT): array {
+    public function findAvailableMethodsForDeposits(User $user): array {
         /** @var UserRepository $userRepository */
         $userRepository = $this->entityManager->getRepository(User::class);
 
-        return $userRepository->findAvailableMethods($user, $direction);
+        return $userRepository->findAvailableMethodsForDeposit($user);
+    }
+
+    public function findAvailableMethodsForWithdraw(User $user): array {
+        /** @var UserRepository $userRepository */
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        return $userRepository->findAvailableMethodsForWithdraw($user);
     }
 }

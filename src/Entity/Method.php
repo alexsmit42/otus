@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use App\Repository\MethodRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InverseJoinColumn;
 use Doctrine\ORM\Mapping\JoinColumn;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MethodRepository::class)]
 class Method
 {
     #[ORM\Id]
@@ -32,7 +33,7 @@ class Method
 
     public function __construct()
     {
-        $this->countries    = new ArrayCollection();
+        $this->countries = new ArrayCollection();
     }
 
     public function getId(): ?int

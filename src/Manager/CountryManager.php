@@ -3,7 +3,6 @@
 namespace App\Manager;
 
 use App\Entity\Country;
-use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CountryManager
@@ -26,12 +25,5 @@ class CountryManager
 
     public function findByName(string $name): ?Country {
         return $this->entityManager->getRepository(Country::class)->findOneBy(['name' => $name]);
-    }
-
-    public function getCountMethodsByCountry(): array {
-        /** @var CountryRepository $countryRepository */
-        $countryRepository = $this->entityManager->getRepository(Country::class);
-
-        return $countryRepository->getCountMethodsByCountry();
     }
 }
