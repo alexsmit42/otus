@@ -3,9 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Country;
-use App\Entity\Currency;
 use App\Entity\Method;
-use App\Manager\CountryManager;
 use App\Manager\MethodManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;

@@ -5,7 +5,6 @@ namespace App\Manager;
 use App\Entity\Country;
 use App\Entity\Currency;
 use App\Entity\User;
-use App\Enum\Direction;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

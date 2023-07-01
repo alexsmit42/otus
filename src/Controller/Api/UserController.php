@@ -2,10 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Currency;
 use App\Entity\User;
 use App\Manager\UserManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

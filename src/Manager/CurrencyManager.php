@@ -3,7 +3,6 @@
 namespace App\Manager;
 
 use App\Entity\Currency;
-use App\Entity\User;
 use App\Repository\CurrencyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
