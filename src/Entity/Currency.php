@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use App\Repository\CurrencyRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: CurrencyRepository::class)]
+#[UniqueConstraint(name: "uniq__currency_iso", columns: ["iso"])]
 class Currency
 {
     #[ORM\Id]

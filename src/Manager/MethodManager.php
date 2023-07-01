@@ -86,4 +86,11 @@ class MethodManager
 
         return $methodRepository->findTransactionsByStatus($method, Status::PENDING);
     }
+
+    public function countByCountry(Country $country): int {
+        /** @var MethodRepository $methodRepository */
+        $methodRepository = $this->entityManager->getRepository(Method::class);
+
+        return $methodRepository->countMethodsByCountry($country);
+    }
 }

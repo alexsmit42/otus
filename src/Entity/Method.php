@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use App\Repository\MethodRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InverseJoinColumn;
 use Doctrine\ORM\Mapping\JoinColumn;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MethodRepository::class)]
 class Method
 {
     #[ORM\Id]
@@ -19,10 +20,10 @@ class Method
     #[ORM\Column(length: 40)]
     private string $name;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $min_limit = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $max_limit = null;
 
     #[ORM\ManyToMany(targetEntity: Country::class)]
@@ -32,7 +33,7 @@ class Method
 
     public function __construct()
     {
-        $this->countries    = new ArrayCollection();
+        $this->countries = new ArrayCollection();
     }
 
     public function getId(): ?int

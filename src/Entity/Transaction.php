@@ -17,6 +17,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Index(columns: ['created_at'], name: 'transaction__created_at__index')]
 #[ORM\Index(columns: ['status'], name: 'transaction__status__index')]
 #[ORM\Index(columns: ['direction'], name: 'transaction__direction__index')]
+#[ORM\Index(columns: ['method_id', 'status'], name: 'transaction__method_id__status__index')]
 class Transaction
 {
     #[ORM\Id]
@@ -27,11 +28,11 @@ class Transaction
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     private float $amount;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private int $status;
+    #[ORM\Column(type: Types::SMALLINT, enumType: Status::class)]
+    private Status $status;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private int $direction;
+    #[ORM\Column(type: Types::SMALLINT, enumType: Direction::class)]
+    private Direction $direction;
 
     #[ORM\Column(length: 40, nullable: true)]
     private ?string $payment_details = null;
@@ -45,19 +46,16 @@ class Transaction
     private DateTime $updated_at;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id', nullable: false)]
     private Currency $currency;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[ORM\JoinColumn(name: 'payer_id', referencedColumnName: 'id')]
-    private ?User $payer = null;
+    #[ORM\JoinColumn(name: 'payer_id', referencedColumnName: 'id', nullable: false)]
+    private User $payer;
 
-    #[ORM\ManyToOne(inversedBy: 'transactions')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id')]
-    private ?Method $method = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id', nullable: false)]
+    private Method $method;
 
     public function getId(): ?int
     {
@@ -76,24 +74,24 @@ class Transaction
         return $this;
     }
 
-    public function getStatus(): int
+    public function getStatus(): Status
     {
         return $this->status;
     }
 
-    public function setStatus(int $status): static
+    public function setStatus(Status $status): static
     {
         $this->status = $status;
 
         return $this;
     }
 
-    public function getDirection(): int
+    public function getDirection(): Direction
     {
         return $this->direction;
     }
 
-    public function setDirection(int $direction): static
+    public function setDirection(Direction $direction): static
     {
         $this->direction = $direction;
 
@@ -148,24 +146,24 @@ class Transaction
         return $this;
     }
 
-    public function getPayer(): ?User
+    public function getPayer(): User
     {
         return $this->payer;
     }
 
-    public function setPayer(?User $payer): static
+    public function setPayer(User $payer): static
     {
         $this->payer = $payer;
 
         return $this;
     }
 
-    public function getMethod(): ?Method
+    public function getMethod(): Method
     {
         return $this->method;
     }
 
-    public function setMethod(?Method $method): static
+    public function setMethod(Method $method): static
     {
         $this->method = $method;
 
@@ -181,8 +179,8 @@ class Transaction
             'amount'          => $this->getAmount(),
             'currency'        => $this->getCurrency()->toArray(),
             'payment_details' => $this->getPaymentDetails(),
-            'status'          => Status::from($this->getStatus()),
-            'direction'       => Direction::from($this->getDirection()),
+            'status'          => $this->getStatus(),
+            'direction'       => $this->getDirection(),
             'created_at'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at'      => $this->getUpdatedAt()->format('Y-m-d H:i:s'),
         ];

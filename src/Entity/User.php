@@ -2,14 +2,17 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\Index(columns: ['country_id'], name: 'user__country_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'user__currency_id__index')]
+#[UniqueConstraint(name: "uniq__user_login", columns: ["login"])]
 class User
 {
     #[ORM\Id]
@@ -30,13 +33,11 @@ class User
     private float $balance = 0;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'currency_id', referencedColumnName: 'id', nullable: false)]
     private Currency $currency;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id', nullable: false)]
     private Country $country;
 
     #[ORM\OneToMany(mappedBy: 'payer', targetEntity: Transaction::class)]

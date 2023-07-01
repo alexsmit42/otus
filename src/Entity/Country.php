@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use App\Repository\CountryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: CountryRepository::class)]
+#[UniqueConstraint(name: "uniq__country_name", columns: ["name"])]
 class Country
 {
     #[ORM\Id]

@@ -2,10 +2,12 @@
 
 namespace App\Repository;
 
+use App\Entity\Country;
 use App\Entity\Method;
 use App\Entity\Transaction;
 use App\Enum\Status;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 class MethodRepository extends ServiceEntityRepository
@@ -36,5 +38,24 @@ class MethodRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function countMethodsByCountry(Country $country): int {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb
+            ->select('COUNT(m.id)')
+            ->from(Method::class, 'm')
+            ->leftJoin('m.countries', 'c')
+            ->where($qb->expr()->eq('c.id', ':country_id'))
+            ->setParameter('country_id', $country->getId())
+            ->groupBy('m.id')
+        ;
+
+        try {
+            return $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException) {
+            return 0;
+        }
     }
 }
