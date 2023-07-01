@@ -25,7 +25,8 @@ class CountryManager
         return $country;
     }
 
-    public function delete(Country $country): bool {
+    public function delete(Country $country): bool
+    {
         try {
             $this->entityManager->remove($country);
             $this->entityManager->flush();
@@ -37,17 +38,20 @@ class CountryManager
         return true;
     }
 
-    public function findByName(string $name): ?Country {
+    public function findByName(string $name): ?Country
+    {
         $name = ucfirst(strtolower($name));
 
         return $this->entityManager->getRepository(Country::class)->findOneBy(['name' => $name]);
     }
 
-    public function getAll(): array {
+    public function getAll(): array
+    {
         return $this->entityManager->getRepository(Country::class)->findAll();
     }
 
-    public function getCountMethodsByCountry(): array {
+    public function getCountMethodsByCountry(): array
+    {
         /** @var CountryRepository $countryRepository */
         $countryRepository = $this->entityManager->getRepository(Country::class);
 

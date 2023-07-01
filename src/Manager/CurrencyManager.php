@@ -27,7 +27,8 @@ class CurrencyManager
         return $currency;
     }
 
-    public function update(int $id, float $rate): bool {
+    public function update(int $id, float $rate): bool
+    {
         $currency = $this->entityManager->getRepository(Currency::class)->find($id);
 
         if (!$currency) {
@@ -40,7 +41,8 @@ class CurrencyManager
         return true;
     }
 
-    public function delete(Currency $currency): bool {
+    public function delete(Currency $currency): bool
+    {
         try {
             $this->entityManager->remove($currency);
             $this->entityManager->flush();
@@ -52,15 +54,18 @@ class CurrencyManager
         return true;
     }
 
-    public function findByIso(string $iso): ?Currency {
+    public function findByIso(string $iso): ?Currency
+    {
         return $this->entityManager->getRepository(Currency::class)->findOneBy(['iso' => strtoupper($iso)]);
     }
 
-    public function getAll(): array {
+    public function getAll(): array
+    {
         return $this->entityManager->getRepository(Currency::class)->findAll();
     }
 
-    public function getCountUsersByCurrency(): array {
+    public function getCountUsersByCurrency(): array
+    {
         /** @var CurrencyRepository $currencyRepository */
         $currencyRepository = $this->entityManager->getRepository(Currency::class);
 

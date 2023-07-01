@@ -21,8 +21,8 @@ class UserController extends AbstractController
     #[Route(path: '', methods: ['POST'])]
     public function createUser(Request $request): Response
     {
-        $login  = $request->request->get('login');
-        $countryId = $request->request->get('country_id');
+        $login      = $request->request->get('login');
+        $countryId  = $request->request->get('country_id');
         $currencyId = $request->request->get('currency_id');
 
         $currency = $this->userManager->createFromAPI($login, $countryId, $currencyId);
@@ -41,7 +41,8 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '', methods: ['GET'])]
-    public function getUsers(): Response {
+    public function getUsers(): Response
+    {
         $users = array_map(fn(User $user) => $user->toArray(), $this->userManager->getAll());
 
         return $this->json($users, $users ? Response::HTTP_OK : Response::HTTP_NO_CONTENT);
@@ -49,19 +50,22 @@ class UserController extends AbstractController
 
     #[Route(path: '/by-login/{login}', methods: ['GET'])]
     #[ParamConverter('user')]
-    public function getUserByLogin(User $user): Response {
+    public function getUserByLogin(User $user): Response
+    {
         return $this->json([$user->toArray()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[ParamConverter('user')]
-    public function getUserById(User $user): Response {
+    public function getUserById(User $user): Response
+    {
         return $this->json([$user->toArray()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     #[ParamConverter('user')]
-    public function deleteUser(User $user): Response {
+    public function deleteUser(User $user): Response
+    {
         $result = $this->userManager->delete($user);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);

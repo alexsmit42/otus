@@ -40,14 +40,16 @@ class CurrencyController extends AbstractController
     }
 
     #[Route(path: '', methods: ['GET'])]
-    public function getCurrencies(): Response {
+    public function getCurrencies(): Response
+    {
         $currencies = array_map(fn(Currency $currency) => $currency->toArray(), $this->currencyManager->getAll());
 
         return $this->json($currencies, $currencies ? Response::HTTP_OK : Response::HTTP_NO_CONTENT);
     }
 
     #[Route(path: '/by-iso/{iso}', methods: ['GET'])]
-    public function getCurrencyByIso(string $iso): Response {
+    public function getCurrencyByIso(string $iso): Response
+    {
         $currency = $this->currencyManager->findByIso($iso);
 
         return $this->json([$currency->toArray()], Response::HTTP_OK);
@@ -55,13 +57,15 @@ class CurrencyController extends AbstractController
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[Entity('currency', expr: 'repository.find(id)')]
-    public function getCurrency(Currency $currency): Response {
+    public function getCurrency(Currency $currency): Response
+    {
         return $this->json([$currency->toArray()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     #[Entity('currency', expr: 'repository.find(id)')]
-    public function deleteCurrency(Currency $currency): Response {
+    public function deleteCurrency(Currency $currency): Response
+    {
         $result = $this->currencyManager->delete($currency);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
