@@ -28,26 +28,37 @@ class CurrencyController extends AbstractController
 
         $currency = $this->currencyManager->createOrUpdate($iso, $rate);
 
-        return new JsonResponse(['id' => $currency->getId()], Response::HTTP_OK);
+        return $this->json(['id' => $currency->getId()], Response::HTTP_OK);
+    }
+
+    #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['PATCH'])]
+    public function updateCurrency(Request $request, int $id): Response
+    {
+        $rate = $request->query->get('rate');
+
+        $result = $this->currencyManager->update($id, $rate);
+
+        return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
     #[Route(path: '', methods: ['GET'])]
     public function getCurrencies(): Response {
         $currencies = array_map(fn(Currency $currency) => $currency->toArray(), $this->currencyManager->getAll());
 
-        return new JsonResponse($currencies, $currencies ? Response::HTTP_OK : Response::HTTP_NO_CONTENT);
+        return $this->json($currencies, $currencies ? Response::HTTP_OK : Response::HTTP_NO_CONTENT);
     }
 
     #[Route(path: '/by-iso/{iso}', methods: ['GET'])]
-    #[ParamConverter('currency')]
-    public function getCurrencyByIso(Currency $currency): Response {
-        return new JsonResponse([$currency->toArray()], Response::HTTP_OK);
+    public function getCurrencyByIso(string $iso): Response {
+        $currency = $this->currencyManager->findByIso($iso);
+
+        return $this->json([$currency->toArray()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[Entity('currency', expr: 'repository.find(id)')]
     public function getCurrency(Currency $currency): Response {
-        return new JsonResponse([$currency->toArray()], Response::HTTP_OK);
+        return $this->json([$currency->toArray()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
@@ -55,7 +66,7 @@ class CurrencyController extends AbstractController
     public function deleteCurrency(Currency $currency): Response {
         $result = $this->currencyManager->delete($currency);
 
-        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
+        return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
 }

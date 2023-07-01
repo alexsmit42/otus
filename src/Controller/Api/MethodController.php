@@ -35,6 +35,17 @@ class MethodController extends AbstractController
         return $this->json(['id' => $country->getId()], Response::HTTP_OK);
     }
 
+    #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['PATCH'])]
+    public function updateMethod(Request $request, int $id): Response
+    {
+        $minLimit = $request->query->get('min_limit');
+        $maxLimit = $request->query->get('max_limit');
+
+        $result = $this->methodManager->update($id, $minLimit, $maxLimit);
+
+        return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
+    }
+
     #[Route(path: '', methods: ['GET'])]
     public function getMethods(): Response
     {

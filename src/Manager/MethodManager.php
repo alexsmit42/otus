@@ -33,6 +33,20 @@ class MethodManager
         return $method;
     }
 
+    public function update(int $id, ?float $minLimit, ?float $maxLimit): bool {
+        $method = $this->entityManager->getRepository(Method::class)->find($id);
+
+        if (!$method) {
+            return false;
+        }
+
+        if ($minLimit) $method->setMinLimit($minLimit);
+        if ($maxLimit) $method->setMinLimit($maxLimit);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
     public function delete(Method $method): bool {
         try {
             $this->entityManager->remove($method);
@@ -62,10 +76,7 @@ class MethodManager
     }
 
     public function getAll(): array {
-        /** @var MethodRepository $methodRepository */
-        $methodRepository = $this->entityManager->getRepository(Method::class);
-
-        return $methodRepository->findAll();
+        return $this->entityManager->getRepository(Method::class)->findAll();
     }
 
     public function findByName(string $name): ?Method

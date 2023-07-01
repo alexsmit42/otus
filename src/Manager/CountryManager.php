@@ -3,6 +3,7 @@
 namespace App\Manager;
 
 use App\Entity\Country;
+use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
@@ -43,10 +44,7 @@ class CountryManager
     }
 
     public function getAll(): array {
-        /** @var CountryRepository $countryRepository */
-        $countryRepository = $this->entityManager->getRepository(Country::class);
-
-        return $countryRepository->findAll();
+        return $this->entityManager->getRepository(Country::class)->findAll();
     }
 
     public function getCountMethodsByCountry(): array {
