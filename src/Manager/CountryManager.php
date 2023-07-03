@@ -5,7 +5,7 @@ namespace App\Manager;
 use App\Entity\Country;
 use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use Throwable;
 
 class CountryManager
 {
@@ -30,7 +30,7 @@ class CountryManager
         try {
             $this->entityManager->remove($country);
             $this->entityManager->flush();
-        } catch (Exception) {
+        } catch (Throwable) {
             // TODO: log/message error
             return false;
         }
