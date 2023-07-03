@@ -3,7 +3,9 @@
 namespace App\Manager;
 
 use App\Entity\Country;
+use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class CountryManager
 {
@@ -11,7 +13,7 @@ class CountryManager
     {
     }
 
-    public function create(string $name): Country
+    public function createOrUpdate(string $name): Country
     {
         if (!$country = $this->findByName($name)) {
             $country = new Country();
@@ -23,7 +25,36 @@ class CountryManager
         return $country;
     }
 
-    public function findByName(string $name): ?Country {
+    public function delete(Country $country): bool
+    {
+        try {
+            $this->entityManager->remove($country);
+            $this->entityManager->flush();
+        } catch (Exception) {
+            // TODO: log/message error
+            return false;
+        }
+
+        return true;
+    }
+
+    public function findByName(string $name): ?Country
+    {
+        $name = ucfirst(strtolower($name));
+
         return $this->entityManager->getRepository(Country::class)->findOneBy(['name' => $name]);
+    }
+
+    public function getAll(): array
+    {
+        return $this->entityManager->getRepository(Country::class)->findAll();
+    }
+
+    public function getCountMethodsByCountry(): array
+    {
+        /** @var CountryRepository $countryRepository */
+        $countryRepository = $this->entityManager->getRepository(Country::class);
+
+        return $countryRepository->getCountMethodsByCountry();
     }
 }

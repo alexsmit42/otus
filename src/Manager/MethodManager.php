@@ -7,6 +7,7 @@ use App\Entity\Method;
 use App\Enum\Status;
 use App\Repository\MethodRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class MethodManager
 {
@@ -14,11 +15,16 @@ class MethodManager
     {
     }
 
-    public function create(string $name): Method
-    {
+    public function createOrUpdate(
+        string $name,
+        ?float $minLimit = null,
+        ?float $maxLimit = null,
+    ): Method {
         if (!$method = $this->findByName($name)) {
             $method = new Method();
             $method->setName($name);
+            $method->setMinLimit($minLimit);
+            $method->setMaxLimit($maxLimit);
             $this->entityManager->persist($method);
             $this->entityManager->flush();
         }
@@ -26,16 +32,59 @@ class MethodManager
         return $method;
     }
 
-    public function addCountry(Method $method, Country $country): void {
+    public function update(int $id, ?float $minLimit, ?float $maxLimit): bool
+    {
+        $method = $this->entityManager->getRepository(Method::class)->find($id);
+
+        if (!$method) {
+            return false;
+        }
+
+        if ($minLimit) {
+            $method->setMinLimit($minLimit);
+        }
+        if ($maxLimit) {
+            $method->setMinLimit($maxLimit);
+        }
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function delete(Method $method): bool
+    {
+        try {
+            $this->entityManager->remove($method);
+            $this->entityManager->flush();
+        } catch (Exception) {
+            // TODO: log/message error
+            return false;
+        }
+
+        return true;
+    }
+
+    public function addCountry(Method $method, Country $country): bool
+    {
         $method->addCountry($country);
 
         $this->entityManager->flush();
+
+        return true;
     }
 
-    public function removeCountry(Method $method, Country $country): void {
+    public function removeCountry(Method $method, Country $country): bool
+    {
         $method->removeCountry($country);
 
         $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function getAll(): array
+    {
+        return $this->entityManager->getRepository(Method::class)->findAll();
     }
 
     public function findByName(string $name): ?Method
@@ -43,21 +92,24 @@ class MethodManager
         return $this->entityManager->getRepository(Method::class)->findOneBy(['name' => $name]);
     }
 
-    public function findSuccessfulTransactions(Method $method): array {
+    public function findSuccessfulTransactions(Method $method): array
+    {
         /** @var MethodRepository $methodRepository */
         $methodRepository = $this->entityManager->getRepository(Method::class);
 
         return $methodRepository->findTransactionsByStatus($method, Status::SUCCESS);
     }
 
-    public function findPendingTransactions(Method $method): array {
+    public function findPendingTransactions(Method $method): array
+    {
         /** @var MethodRepository $methodRepository */
         $methodRepository = $this->entityManager->getRepository(Method::class);
 
         return $methodRepository->findTransactionsByStatus($method, Status::PENDING);
     }
 
-    public function countByCountry(Country $country): int {
+    public function countByCountry(Country $country): int
+    {
         /** @var MethodRepository $methodRepository */
         $methodRepository = $this->entityManager->getRepository(Method::class);
 
