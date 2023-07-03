@@ -7,7 +7,8 @@ use App\Entity\Currency;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Throwable;
 
 class UserManager
 {
@@ -31,12 +32,19 @@ class UserManager
         return $user;
     }
 
-    public function createFromAPI(string $login, int $countryId, int $currencyId): ?User
+    public function createFromRequest(Request $request): ?User
     {
+        $login      = $request->request->get('login');
+        $countryId  = $request->request->get('country_id');
+        $currencyId = $request->request->get('currency_id');
+
+        $country  = $this->entityManager->getRepository(Country::class)->find($countryId);
+        $currency = $this->entityManager->getRepository(Currency::class)->find($currencyId);
+
         if (
             $this->findByLogin($login)
-            || (!$country = $this->entityManager->getRepository(Country::class)->find($countryId))
-            || (!$currency = $this->entityManager->getRepository(Currency::class)->find($currencyId))
+            || !$country
+            || !$currency
         ) {
             return null;
         }
@@ -72,7 +80,7 @@ class UserManager
         try {
             $this->entityManager->remove($user);
             $this->entityManager->flush();
-        } catch (Exception) {
+        } catch (Throwable) {
             // TODO: log/message error
             return false;
         }

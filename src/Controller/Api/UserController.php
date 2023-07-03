@@ -21,11 +21,7 @@ class UserController extends AbstractController
     #[Route(path: '', methods: ['POST'])]
     public function createUser(Request $request): Response
     {
-        $login      = $request->request->get('login');
-        $countryId  = $request->request->get('country_id');
-        $currencyId = $request->request->get('currency_id');
-
-        $currency = $this->userManager->createFromAPI($login, $countryId, $currencyId);
+        $currency = $this->userManager->createFromRequest($request);
 
         return $this->json(['id' => $currency->getId()], Response::HTTP_OK);
     }

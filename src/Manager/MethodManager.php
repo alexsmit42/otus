@@ -4,10 +4,11 @@ namespace App\Manager;
 
 use App\Entity\Country;
 use App\Entity\Method;
+use App\Entity\User;
 use App\Enum\Status;
 use App\Repository\MethodRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use Throwable;
 
 class MethodManager
 {
@@ -36,16 +37,18 @@ class MethodManager
     {
         $method = $this->entityManager->getRepository(Method::class)->find($id);
 
-        if (!$method) {
+        if ($method === null) {
             return false;
         }
 
         if ($minLimit) {
             $method->setMinLimit($minLimit);
         }
+
         if ($maxLimit) {
             $method->setMinLimit($maxLimit);
         }
+
         $this->entityManager->flush();
 
         return true;
@@ -56,7 +59,7 @@ class MethodManager
         try {
             $this->entityManager->remove($method);
             $this->entityManager->flush();
-        } catch (Exception) {
+        } catch (Throwable) {
             // TODO: log/message error
             return false;
         }
@@ -90,6 +93,11 @@ class MethodManager
     public function findByName(string $name): ?Method
     {
         return $this->entityManager->getRepository(Method::class)->findOneBy(['name' => $name]);
+    }
+
+    public function isAllowedForUser(Method $method, User $user): bool
+    {
+        return $method->getCountries()->contains($user->getCountry());
     }
 
     public function findSuccessfulTransactions(Method $method): array
