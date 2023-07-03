@@ -2,10 +2,11 @@
 
 namespace App\Manager;
 
+use App\DTO\ManageCurrencyDTO;
 use App\Entity\Currency;
 use App\Repository\CurrencyRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use Throwable;
 
 class CurrencyManager
 {
@@ -13,14 +14,14 @@ class CurrencyManager
     {
     }
 
-    public function createOrUpdate(string $iso, float $rate): Currency
+    public function createFromDTO(ManageCurrencyDTO $dto): Currency
     {
-        if (!$currency = $this->findByIso($iso)) {
+        if (!$currency = $this->findByIso($dto->getIso())) {
             $currency = new Currency();
-            $currency->setIso($iso);
+            $currency->setIso($dto->getIso());
         }
 
-        $currency->setRate($rate);
+        $currency->setRate($dto->getRate());
         $this->entityManager->persist($currency);
         $this->entityManager->flush();
 
@@ -46,7 +47,7 @@ class CurrencyManager
         try {
             $this->entityManager->remove($currency);
             $this->entityManager->flush();
-        } catch (Exception) {
+        } catch (Throwable) {
             // TODO: log/message error
             return false;
         }

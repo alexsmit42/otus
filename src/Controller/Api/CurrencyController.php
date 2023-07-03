@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\DTO\ManageCurrencyDTO;
 use App\Entity\Currency;
 use App\Manager\CurrencyManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -9,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: '/api/currency')]
 class CurrencyController extends AbstractController
@@ -19,12 +21,16 @@ class CurrencyController extends AbstractController
     }
 
     #[Route(path: '', methods: ['POST'])]
-    public function createCurrency(Request $request): Response
+    public function createCurrency(Request $request, ValidatorInterface $validator): Response
     {
-        $iso  = $request->request->get('iso');
-        $rate = $request->request->get('rate');
+        $dto = (new ManageCurrencyDTO())->fromRequest($request);
 
-        $currency = $this->currencyManager->createOrUpdate($iso, $rate);
+        $errors = $validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json(['success' => false, 'errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        $currency = $this->currencyManager->createFromDTO($dto);
 
         return $this->json(['id' => $currency->getId()], Response::HTTP_OK);
     }
