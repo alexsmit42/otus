@@ -3,7 +3,7 @@
 namespace App\Enum;
 
 /**
- * Status for Transaction and Purchase
+ * Status for Transaction
  */
 enum Status: int
 {
@@ -11,4 +11,12 @@ enum Status: int
     case PENDING = 2;
     case FAIL = 3;
     case SUCCESS = 4;
+
+    public function isFinal(): bool
+    {
+        return match($this) {
+            Status::NEW, Status::PENDING => false,
+            Status::FAIL, Status::SUCCESS => true,
+        };
+    }
 }

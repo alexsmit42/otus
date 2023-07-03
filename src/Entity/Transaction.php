@@ -29,7 +29,7 @@ class Transaction
     private float $amount;
 
     #[ORM\Column(type: Types::SMALLINT, enumType: Status::class)]
-    private Status $status;
+    private Status $status = Status::NEW;
 
     #[ORM\Column(type: Types::SMALLINT, enumType: Direction::class)]
     private Direction $direction;
