@@ -3,9 +3,12 @@
 namespace App\Controller\Api;
 
 use App\DTO\ManageTransactionDTO;
+use App\Entity\Transaction;
+use App\Enum\Status;
 use App\Form\Type\CreateTransactionType;
 use App\Form\Type\UpdateTransactionType;
 use App\Manager\TransactionManager;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,5 +49,22 @@ class TransactionController extends AbstractController
         return $this->render('transaction_form.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route(path: '/update-status/{id}', methods: ['PATCH'])]
+    #[ParamConverter('transaction')]
+    public function updateStatus(Transaction $transaction, Request $request): Response
+    {
+        $status = Status::tryFrom($request->getPayload()->get('status'));
+
+        if (!$status) {
+            return $this->json(['success' => false, 'error' => 'Unknow status: ' . $request->getPayload()->get('status')], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!$this->transactionManager->updateStatus($transaction, $status)) {
+            return $this->json(['success' => false, 'error' => 'Status can not be changed'], Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->json(['success' => true]);
     }
 }

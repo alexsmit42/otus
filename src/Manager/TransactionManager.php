@@ -39,17 +39,7 @@ class TransactionManager
 
     public function updateFromDTO(Transaction $transaction, ManageTransactionDTO $dto): ?Transaction
     {
-        $isDepositFromFailToSuccess = (
-            $transaction->getDirection() === Direction::DEPOSIT
-            && $transaction->getStatus() === Status::FAIL
-            && $dto->status === Status::SUCCESS
-        );
-
-        // if final status, allow change only deposits from fail to success
-        if (
-            $transaction->getStatus()->isFinal()
-            && !$isDepositFromFailToSuccess
-        ) {
+        if (!$this->isAllowedToChangeStatus($transaction, $dto->status)) {
             return null;
         }
 
@@ -69,5 +59,37 @@ class TransactionManager
     public function getById(int $id): Transaction
     {
         return $this->entityManager->getRepository(Transaction::class)->find($id);
+    }
+
+    public function updateStatus(Transaction $transaction, Status $status): bool
+    {
+        if (!$this->isAllowedToChangeStatus($transaction, $status)) {
+            return false;
+        }
+
+        $transaction->setStatus($status);
+
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    private function isAllowedToChangeStatus(Transaction $transaction, Status $status): bool
+    {
+        $isDepositFromFailToSuccess = (
+            $transaction->getDirection() === Direction::DEPOSIT
+            && $transaction->getStatus() === Status::FAIL
+            && $status === Status::SUCCESS
+        );
+
+        // if final status, allow change only deposits from fail to success
+        if (
+            $transaction->getStatus()->isFinal()
+            && !$isDepositFromFailToSuccess
+        ) {
+            return false;
+        }
+
+        return true;
     }
 }
