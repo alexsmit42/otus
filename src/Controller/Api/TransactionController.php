@@ -29,7 +29,7 @@ class TransactionController extends AbstractController
     {
         $form = $this->formFactory->create(
             $_route === 'create_transaction' ? CreateTransactionType::class : UpdateTransactionType::class,
-            $transaction ?? null
+            $transaction
         );
         $form->handleRequest($request);
 
