@@ -17,33 +17,39 @@ class UserBalanceService
     ) {
     }
 
-    public function updateBalance(Transaction $transaction): bool
+    public function updateBalance(Transaction $transaction, ?Status $oldStatus = null): bool
     {
         $newBalance = null;
 
-        if (
-            $transaction->getDirection() === Direction::DEPOSIT
-            && $transaction->getStatus() === Status::SUCCESS
-        ) {
-            $newBalance = $this->upBalance($transaction->getPayer(), $transaction->getAmount(), $transaction->getCurrency());
+        $newStatus = $transaction->getStatus();
+
+        if ($oldStatus === $newStatus) {
+            return false;
         }
 
-        if (
+        $isDepositUpdate = (
+            $transaction->getDirection() === Direction::DEPOSIT
+            && $newStatus === Status::SUCCESS
+        );
+
+        $isWithdrawUpdate = (
             $transaction->getDirection() === Direction::WITHDRAW
-            && $transaction->getStatus() === Status::FAIL
-        ) {
+            && ($newStatus === Status::FAIL || $newStatus === Status::NEW)
+        );
+
+        if ($isDepositUpdate) {
+            $newBalance = $this->upBalance($transaction->getPayer(), $transaction->getAmount(), $transaction->getCurrency());
+        } else if ($isWithdrawUpdate) {
             $newBalance = $this->downBalance($transaction->getPayer(), $transaction->getAmount(), $transaction->getCurrency());
         }
 
         if ($newBalance) {
             // TODO: BalanceHistory
 
-            //$this->entityManager->flush();
-
-            return true;
+            $this->entityManager->flush();
         }
 
-        return false;
+        return true;
     }
 
     private function upBalance(User $user, float $amount, Currency $currency): ?float
@@ -61,7 +67,7 @@ class UserBalanceService
     {
         $userAmount = $this->exchangeService->convertAmount($amount, $currency, $user->getCurrency());
 
-        if ($user->getBalance() < $userAmount) {
+        if ($this->isBalanceSufficient($user, $amount, $currency)) {
             return false;
         }
 
@@ -70,5 +76,15 @@ class UserBalanceService
         $this->entityManager->flush();
 
         return $newBalance;
+    }
+
+    public function isBalanceSufficient(User $user, float $amount, Currency $currency): bool {
+        $userAmount = $this->exchangeService->convertAmount($amount, $currency, $user->getCurrency());
+
+        if ($user->getBalance() < $userAmount) {
+            return false;
+        }
+
+        return true;
     }
 }

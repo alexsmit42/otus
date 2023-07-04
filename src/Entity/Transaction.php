@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity]
-#[ORM\EntityListeners([TransactionListener::class])]
 #[ORM\Index(columns: ['method_id'], name: 'transaction__method_id__index')]
 #[ORM\Index(columns: ['payer_id'], name: 'transaction__payer_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'transaction__currency_id__index')]
