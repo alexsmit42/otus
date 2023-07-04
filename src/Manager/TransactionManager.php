@@ -6,6 +6,7 @@ use App\DTO\ManageTransactionDTO;
 use App\Entity\Transaction;
 use App\Enum\Direction;
 use App\Enum\Status;
+use App\Service\ExchangeService;
 use App\Service\UserBalanceService;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,6 +16,7 @@ class TransactionManager
         private readonly EntityManagerInterface $entityManager,
         private readonly MethodManager $methodManager,
         private readonly UserBalanceService $balanceService,
+        private readonly ExchangeService $exchangeService,
     ) {
     }
 
@@ -29,12 +31,22 @@ class TransactionManager
         $transaction->setMethod($dto->method);
         $transaction->setPaymentDetails($dto->paymentDetails);
 
+        $userAmount = $this->exchangeService->convertAmount(
+            $transaction->getAmount(),
+            $transaction->getCurrency(),
+            $transaction->getPayer()->getCurrency()
+        );
+
+        $transaction->setUserAmount($userAmount);
+
         if (!$this->isAllowedTransactionCreate($transaction)) {
             return null;
         }
 
         $this->entityManager->persist($transaction);
         $this->entityManager->flush($transaction);
+
+        $this->balanceService->updateBalance($transaction);
 
         return $transaction;
     }

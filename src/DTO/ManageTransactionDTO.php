@@ -25,7 +25,7 @@ class ManageTransactionDTO
         public ?Direction $direction = null,
 
         #[Assert\NotBlank]
-        public ?Status $status = null,
+        public ?Status $status = Status::NEW,
 
         #[Assert\NotBlank]
         public User $payer = new User(),

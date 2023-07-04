@@ -5,13 +5,14 @@ namespace App\Entity;
 use App\EntityListener\TransactionListener;
 use App\Enum\Direction;
 use App\Enum\Status;
+use App\Repository\TransactionRepository;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ORM\Index(columns: ['method_id'], name: 'transaction__method_id__index')]
 #[ORM\Index(columns: ['payer_id'], name: 'transaction__payer_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'transaction__currency_id__index')]
@@ -28,6 +29,9 @@ class Transaction
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     private float $amount;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private float $user_amount;
 
     #[ORM\Column(type: Types::SMALLINT, enumType: Status::class)]
     private Status $status = Status::NEW;
@@ -171,6 +175,16 @@ class Transaction
         return $this;
     }
 
+    public function getUserAmount(): float
+    {
+        return $this->user_amount;
+    }
+
+    public function setUserAmount(float $user_amount): void
+    {
+        $this->user_amount = $user_amount;
+    }
+
     public function toArray(): array
     {
         return [
@@ -178,6 +192,7 @@ class Transaction
             'buyer'           => $this->getPayer()->toArray(),
             'method'          => $this->getMethod()->toArray(),
             'amount'          => $this->getAmount(),
+            'user_amount'     => $this->getUserAmount(),
             'currency'        => $this->getCurrency()->toArray(),
             'payment_details' => $this->getPaymentDetails(),
             'status'          => $this->getStatus(),
