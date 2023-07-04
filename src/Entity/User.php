@@ -123,18 +123,6 @@ class User
         return $this;
     }
 
-    public function removeTransaction(Transaction $transaction): static
-    {
-        if ($this->transactions->removeElement($transaction)) {
-            // set the owning side to null (unless already changed)
-            if ($transaction->getPayer() === $this) {
-                $transaction->setPayer(null);
-            }
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Purchase>
      */

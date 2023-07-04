@@ -44,7 +44,7 @@ class TransactionManager
         }
 
         $this->entityManager->persist($transaction);
-        $this->entityManager->flush($transaction);
+        $this->entityManager->flush();
 
         $this->balanceService->updateBalance($transaction);
 
@@ -65,7 +65,7 @@ class TransactionManager
         $transaction->setPaymentDetails($dto->paymentDetails);
         $transaction->setMethod($dto->method);
 
-        $this->entityManager->flush($transaction);
+        $this->entityManager->flush();
 
         return $transaction;
     }

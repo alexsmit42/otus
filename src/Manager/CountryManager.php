@@ -49,12 +49,4 @@ class CountryManager
     {
         return $this->entityManager->getRepository(Country::class)->findAll();
     }
-
-    public function getCountMethodsByCountry(): array
-    {
-        /** @var CountryRepository $countryRepository */
-        $countryRepository = $this->entityManager->getRepository(Country::class);
-
-        return $countryRepository->getCountMethodsByCountry();
-    }
 }

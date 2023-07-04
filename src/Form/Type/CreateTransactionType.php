@@ -28,7 +28,7 @@ class CreateTransactionType extends AbstractType
             ])
             ->add('direction', EnumType::class, [
                 'class'        => Direction::class,
-                'choice_label' => fn($choice) => match ($choice) {
+                'choice_label' => fn(Direction $choice) => match ($choice) {
                     Direction::DEPOSIT => 'deposit',
                     Direction::WITHDRAW => 'withdraw',
                 },

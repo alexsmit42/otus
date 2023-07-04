@@ -52,7 +52,7 @@ class UserBalanceService
         return true;
     }
 
-    private function upBalance(User $user, float $amount, Currency $currency): ?float
+    private function upBalance(User $user, float $amount, Currency $currency): float
     {
         $userAmount = $this->exchangeService->convertAmount($amount, $currency, $user->getCurrency());
 
@@ -68,7 +68,7 @@ class UserBalanceService
         $userAmount = $this->exchangeService->convertAmount($amount, $currency, $user->getCurrency());
 
         if ($this->isBalanceSufficient($user, $amount, $currency)) {
-            return false;
+            return null;
         }
 
         $newBalance = $user->getBalance() - $userAmount;

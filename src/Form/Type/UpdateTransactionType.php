@@ -21,7 +21,7 @@ class UpdateTransactionType extends CreateTransactionType
             ])
             ->add('status', EnumType::class, [
                 'class'        => Status::class,
-                'choice_label' => fn($choice) => match ($choice) {
+                'choice_label' => fn(Status $choice) => match ($choice) {
                     Status::NEW => 'New',
                     Status::PENDING => 'Pending',
                     Status::FAIL => 'Fail',
