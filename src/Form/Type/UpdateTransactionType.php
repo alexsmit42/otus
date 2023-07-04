@@ -4,11 +4,13 @@ namespace App\Form\Type;
 
 use App\Entity\Method;
 use App\Enum\Status;
+use App\Validator\PaymentAccount;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UpdateTransactionType extends CreateTransactionType
 {
@@ -18,6 +20,9 @@ class UpdateTransactionType extends CreateTransactionType
             ->add('method', EntityType::class, [
                 'class'        => Method::class,
                 'choice_label' => 'name',
+                'constraints' => [
+                    new NotBlank(),
+                ],
             ])
             ->add('status', EnumType::class, [
                 'class'        => Status::class,
@@ -27,8 +32,16 @@ class UpdateTransactionType extends CreateTransactionType
                     Status::FAIL => 'Fail',
                     Status::SUCCESS => 'Success',
                 },
+                'constraints' => [
+                    new NotBlank(),
+                ],
             ])
-            ->add('paymentDetails', TextType::class)
+            ->add('paymentDetails', TextType::class, [
+                'constraints' => [
+                    new NotBlank(),
+                    new PaymentAccount(),
+                ],
+            ])
             ->add('submit', SubmitType::class)
             ->setMethod('PATCH');
     }

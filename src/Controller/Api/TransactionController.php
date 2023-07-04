@@ -2,10 +2,11 @@
 
 namespace App\Controller\Api;
 
-use App\DTO\ManageTransactionDTO;
+use App\Entity\Transaction;
 use App\Form\Type\CreateTransactionType;
 use App\Form\Type\UpdateTransactionType;
 use App\Manager\TransactionManager;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,25 +23,20 @@ class TransactionController extends AbstractController
     }
 
     #[Route(path: '/create-transaction', name: 'create_transaction', methods: ['GET', 'POST'])]
-    #[Route(path: '/update-transaction/{id}', name: 'update_transaction', methods: ['GET', 'PATCH'])]
-    public function createTransactionForm(Request $request, string $_route, ?int $id = null): Response
+    #[Route(path: '/update-transaction/{id}', name: 'update_transaction', requirements: ['id' => '\d+'], methods: ['GET', 'PATCH'])]
+    #[ParamConverter('transaction')]
+    public function createTransactionForm(Request $request, string $_route, ?Transaction $transaction = null): Response
     {
-        if ($id) {
-            $transaction = $this->transactionManager->getById($id);
-            $dto         = ManageTransactionDTO::fromEntity($transaction);
-        }
-
         $form = $this->formFactory->create(
             $_route === 'create_transaction' ? CreateTransactionType::class : UpdateTransactionType::class,
-            $dto ?? null
+            $transaction ?? null
         );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $transactionDTO = $form->getData();
-            $_route === 'create_transaction'
-                ? $this->transactionManager->createFromDTO($transactionDTO)
-                : $this->transactionManager->updateFromDTO($transaction, $transactionDTO);
+            $transaction = $form->getData();
+
+            $this->transactionManager->save($transaction);
         }
 
         return $this->render('transaction_form.twig', [
