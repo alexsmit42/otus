@@ -15,7 +15,6 @@ class TransactionManager
         private readonly EntityManagerInterface $entityManager,
         private readonly MethodManager $methodManager,
         private readonly UserBalanceService $balanceService,
-
     ) {
     }
 
@@ -23,16 +22,16 @@ class TransactionManager
     {
         $transaction = new Transaction();
 
-        if (!$this->methodManager->isAllowedForUser($dto->method, $dto->payer)) {
-            return null;
-        }
-
         $transaction->setAmount($dto->amount);
         $transaction->setCurrency($dto->currency);
         $transaction->setDirection($dto->direction);
         $transaction->setPayer($dto->payer);
         $transaction->setMethod($dto->method);
         $transaction->setPaymentDetails($dto->paymentDetails);
+
+        if (!$this->isAllowedTransactionCreate($transaction)) {
+            return null;
+        }
 
         $this->entityManager->persist($transaction);
         $this->entityManager->flush($transaction);
@@ -110,6 +109,26 @@ class TransactionManager
         if (
             $transaction->getStatus()->isFinal()
             && !$isDepositFromFailToSuccess
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isAllowedTransactionCreate(Transaction $transaction): bool
+    {
+        if (!$this->methodManager->isAllowedForUser($transaction->getMethod(), $transaction->getPayer())) {
+            return false;
+        }
+
+        if (
+            $transaction->getDirection() === Direction::WITHDRAW
+            && !$this->balanceService->isBalanceSufficient(
+                $transaction->getPayer(),
+                $transaction->getAmount(),
+                $transaction->getCurrency()
+            )
         ) {
             return false;
         }
