@@ -2,12 +2,14 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\ManageMethodDTO;
 use App\Entity\Country;
 use App\Entity\Method;
 use App\Entity\User;
 use App\Enum\Status;
 use App\Repository\MethodRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Throwable;
 
 class MethodManager
@@ -16,53 +18,59 @@ class MethodManager
     {
     }
 
-    public function createOrUpdate(
-        string $name,
-        ?float $minLimit = null,
-        ?float $maxLimit = null,
-    ): Method {
-        if (!$method = $this->findByName($name)) {
-            $method = new Method();
-            $method->setName($name);
-            $method->setMinLimit($minLimit);
-            $method->setMaxLimit($maxLimit);
-            $this->entityManager->persist($method);
-            $this->entityManager->flush();
-        }
-
-        return $method;
-    }
-
-    public function update(int $id, ?float $minLimit, ?float $maxLimit): bool
+    private function save(Method $method): bool
     {
-        $method = $this->entityManager->getRepository(Method::class)->find($id);
-
-        if ($method === null) {
-            return false;
+        if (
+            $method->getMinLimit()
+            && $method->getMaxLimit()
+            && $method->getMinLimit() >= $method->getMaxLimit()
+        ) {
+            throw new UnprocessableEntityHttpException('minLimit should be less then maxLimit');
         }
 
-        if ($minLimit) {
-            $method->setMinLimit($minLimit);
-        }
-
-        if ($maxLimit) {
-            $method->setMinLimit($maxLimit);
-        }
-
+        $this->entityManager->persist($method);
         $this->entityManager->flush();
 
         return true;
     }
 
+    public function createFromDTO(ManageMethodDTO $dto): Method
+    {
+        if (!$method = $this->findByName($dto->name)) {
+            $method = new Method();
+            $method->setName($dto->name);
+            $method->setMinLimit($dto->min_limit);
+            $method->setMaxLimit($dto->max_limit);
+
+            $this->save($method);
+        }
+
+        return $method;
+    }
+
+    public function updateFromDTO(int $id, ManageMethodDTO $dto): bool
+    {
+        $method = $this->entityManager->getRepository(Method::class)->find($id);
+
+        if ($method === null) {
+            throw new UnprocessableEntityHttpException('Method does not exists');
+        }
+
+        if ($dto->min_limit) {
+            $method->setMinLimit($dto->min_limit);
+        }
+
+        if ($dto->max_limit) {
+            $method->setMaxLimit($dto->max_limit);
+        }
+
+        return $this->save($method);
+    }
+
     public function delete(Method $method): bool
     {
-        try {
-            $this->entityManager->remove($method);
-            $this->entityManager->flush();
-        } catch (Throwable) {
-            // TODO: log/message error
-            return false;
-        }
+        $this->entityManager->remove($method);
+        $this->entityManager->flush();
 
         return true;
     }
@@ -100,20 +108,14 @@ class MethodManager
         return $method->getCountries()->contains($user->getCountry());
     }
 
-    public function findSuccessfulTransactions(Method $method): array
-    {
+    public function findTransactionsByStatus(
+        Method $method,
+        ?Status $status = null
+    ) {
         /** @var MethodRepository $methodRepository */
         $methodRepository = $this->entityManager->getRepository(Method::class);
 
-        return $methodRepository->findTransactionsByStatus($method, Status::SUCCESS);
-    }
-
-    public function findPendingTransactions(Method $method): array
-    {
-        /** @var MethodRepository $methodRepository */
-        $methodRepository = $this->entityManager->getRepository(Method::class);
-
-        return $methodRepository->findTransactionsByStatus($method, Status::PENDING);
+        return $methodRepository->findTransactionsByStatus($method, $status);
     }
 
     public function countByCountry(Country $country): int

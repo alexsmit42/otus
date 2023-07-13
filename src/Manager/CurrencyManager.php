@@ -2,11 +2,11 @@
 
 namespace App\Manager;
 
-use App\DTO\ManageCurrencyDTO;
+use App\DTO\Request\ManageCurrencyDTO;
 use App\Entity\Currency;
 use App\Repository\CurrencyRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class CurrencyManager
 {
@@ -14,43 +14,45 @@ class CurrencyManager
     {
     }
 
-    public function createFromDTO(ManageCurrencyDTO $dto): Currency
+    private function save(Currency $currency): bool
     {
-        if (!$currency = $this->findByIso($dto->getIso())) {
-            $currency = new Currency();
-            $currency->setIso($dto->getIso());
-        }
-
-        $currency->setRate($dto->getRate());
         $this->entityManager->persist($currency);
         $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function createFromDTO(ManageCurrencyDTO $dto): Currency
+    {
+        if (!$currency = $this->findByIso($dto->iso)) {
+            $currency = new Currency();
+            $currency->setIso($dto->iso);
+            $currency->setRate($dto->rate);
+            $this->save($currency);
+        }
 
         return $currency;
     }
 
-    public function update(int $id, float $rate): bool
+    public function updateFromDto(int $id, ManageCurrencyDTO $dto): bool
     {
         $currency = $this->entityManager->getRepository(Currency::class)->find($id);
 
-        if (!$currency) {
-            return false;
+        if ($currency === null) {
+            throw new UnprocessableEntityHttpException('Currency does not exists');
         }
 
-        $currency->setRate($rate);
-        $this->entityManager->flush();
+        $currency->setRate($dto->rate);
+
+        $this->save($currency);
 
         return true;
     }
 
     public function delete(Currency $currency): bool
     {
-        try {
-            $this->entityManager->remove($currency);
-            $this->entityManager->flush();
-        } catch (Throwable) {
-            // TODO: log/message error
-            return false;
-        }
+        $this->entityManager->remove($currency);
+        $this->entityManager->flush();
 
         return true;
     }

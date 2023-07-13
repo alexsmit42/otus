@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\DTO\Request\ManageMethodDTO;
 use App\Entity\Country;
 use App\Entity\Method;
 use App\Manager\MethodManager;
@@ -11,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/method')]
@@ -22,24 +24,22 @@ class MethodController extends AbstractController
     }
 
     #[Route(path: '', methods: ['POST'])]
-    public function createMethod(Request $request): Response
+    public function createMethod(
+        #[MapRequestPayload] ManageMethodDTO $dto,
+    ): Response
     {
-        $name     = $request->request->get('name');
-        $minLimit = $request->request->get('min_limit');
-        $maxLimit = $request->request->get('max_limit');
-
-        $country = $this->methodManager->createOrUpdate($name, $minLimit, $maxLimit);
+        $country = $this->methodManager->createFromDTO($dto);
 
         return $this->json(['id' => $country->getId()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['PATCH'])]
-    public function updateMethod(Request $request, int $id): Response
+    public function updateMethod(
+        int $id,
+        #[MapRequestPayload] ManageMethodDTO $dto,
+    ): Response
     {
-        $minLimit = $request->query->get('min_limit');
-        $maxLimit = $request->query->get('max_limit');
-
-        $result = $this->methodManager->update($id, $minLimit, $maxLimit);
+        $result = $this->methodManager->updateFromDTO($id, $dto);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

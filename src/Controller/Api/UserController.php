@@ -2,7 +2,9 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Method;
 use App\Entity\User;
+use App\Enum\Direction;
 use App\Manager\UserManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -67,4 +69,19 @@ class UserController extends AbstractController
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
+    #[Route(
+        path: '/{id}/available-methods/{direction}',
+        requirements: [
+            'id' => '\d+',
+            'direction' => 'deposit|withdraw'
+        ],
+        methods: ['GET'])
+    ]
+    #[ParamConverter('user', options: ['mapping' => ['id' => 'id']])]
+    public function getAvailableMethods(User $user, string $direction): Response {
+        $methods = $this->userManager->findAvailableMethods($user, Direction::fromString($direction));
+        $methods = array_map(fn(Method $method) => $method->toArray(), $methods);
+
+        return $this->json($methods);
+    }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Controller\Api;
 
-use App\DTO\ManageCurrencyDTO;
+use App\DTO\Request\ManageCurrencyDTO;
 use App\Entity\Currency;
 use App\Manager\CurrencyManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: '/api/currency')]
 class CurrencyController extends AbstractController
@@ -21,26 +21,22 @@ class CurrencyController extends AbstractController
     }
 
     #[Route(path: '', methods: ['POST'])]
-    public function createCurrency(Request $request, ValidatorInterface $validator): Response
+    public function createCurrency(
+        #[MapRequestPayload] ManageCurrencyDTO $dto,
+    ): Response
     {
-        $dto = (new ManageCurrencyDTO())->fromRequest($request);
-
-        $errors = $validator->validate($dto);
-        if (count($errors) > 0) {
-            return $this->json(['success' => false, 'errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
-        }
-
         $currency = $this->currencyManager->createFromDTO($dto);
 
         return $this->json(['id' => $currency->getId()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['PATCH'])]
-    public function updateCurrency(Request $request, int $id): Response
+    public function updateCurrency(
+        int $id,
+        #[MapRequestPayload] ManageCurrencyDTO $dto,
+    ): Response
     {
-        $rate = $request->query->get('rate');
-
-        $result = $this->currencyManager->update($id, $rate);
+        $result = $this->currencyManager->updateFromDto($id, $dto);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

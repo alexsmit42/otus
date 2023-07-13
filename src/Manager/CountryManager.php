@@ -2,8 +2,8 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\ManageCountryDTO;
 use App\Entity\Country;
-use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Throwable;
 
@@ -13,11 +13,11 @@ class CountryManager
     {
     }
 
-    public function createOrUpdate(string $name): Country
+    public function createFromDTO(ManageCountryDTO $dto): Country
     {
-        if (!$country = $this->findByName($name)) {
+        if (!$country = $this->findByName($dto->name)) {
             $country = new Country();
-            $country->setName($name);
+            $country->setName($dto->name);
             $this->entityManager->persist($country);
             $this->entityManager->flush();
         }
@@ -27,13 +27,8 @@ class CountryManager
 
     public function delete(Country $country): bool
     {
-        try {
-            $this->entityManager->remove($country);
-            $this->entityManager->flush();
-        } catch (Throwable) {
-            // TODO: log/message error
-            return false;
-        }
+        $this->entityManager->flush();
+        $this->entityManager->remove($country);
 
         return true;
     }

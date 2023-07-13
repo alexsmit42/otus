@@ -5,31 +5,16 @@ namespace App\Manager;
 use App\Entity\Country;
 use App\Entity\Currency;
 use App\Entity\User;
+use App\Enum\Direction;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class UserManager
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-    }
-
-    public function createOrUpdate(string $login, Currency $currency, Country $country): User
-    {
-        if (!$user = $this->findByLogin($login)) {
-            $user = new User();
-            $user->setLogin($login);
-            $user->setCurrency($currency); // TODO: recalculate balance
-        }
-
-        $user->setCountry($country);
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return $user;
     }
 
     public function createFromRequest(Request $request): ?User
@@ -38,15 +23,15 @@ class UserManager
         $countryId  = $request->request->get('country_id');
         $currencyId = $request->request->get('currency_id');
 
+        if ($this->findByLogin($login)) {
+            throw new UnprocessableEntityHttpException('Incorrect login');
+        }
+
         $country  = $this->entityManager->getRepository(Country::class)->find($countryId);
         $currency = $this->entityManager->getRepository(Currency::class)->find($currencyId);
 
-        if (
-            $this->findByLogin($login)
-            || !$country
-            || !$currency
-        ) {
-            return null;
+        if (!$country || !$currency) {
+            throw new UnprocessableEntityHttpException('Currency or country do not exist');
         }
 
         $user = new User();
@@ -66,7 +51,7 @@ class UserManager
         $country = $this->entityManager->getRepository(Country::class)->find($countryId);
 
         if (!$user || !$country) {
-            return false;
+            throw new UnprocessableEntityHttpException('User or country do not exist');
         }
 
         $user->setCountry($country);
@@ -77,13 +62,8 @@ class UserManager
 
     public function delete(User $user): bool
     {
-        try {
-            $this->entityManager->remove($user);
-            $this->entityManager->flush();
-        } catch (Throwable) {
-            // TODO: log/message error
-            return false;
-        }
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
 
         return true;
     }
@@ -98,19 +78,15 @@ class UserManager
         return $this->entityManager->getRepository(User::class)->findOneBy(['login' => $login]);
     }
 
-    public function findAvailableMethodsForDeposits(User $user): array
+    public function findAvailableMethods(User $user, Direction $direction = Direction::DEPOSIT): array
     {
         /** @var UserRepository $userRepository */
         $userRepository = $this->entityManager->getRepository(User::class);
+
+        if ($direction === Direction::WITHDRAW) {
+            return $userRepository->findAvailableMethodsForWithdraw($user);
+        }
 
         return $userRepository->findAvailableMethodsForDeposit($user);
-    }
-
-    public function findAvailableMethodsForWithdraw(User $user): array
-    {
-        /** @var UserRepository $userRepository */
-        $userRepository = $this->entityManager->getRepository(User::class);
-
-        return $userRepository->findAvailableMethodsForWithdraw($user);
     }
 }
