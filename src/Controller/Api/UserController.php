@@ -2,10 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\DTO\Request\GetTransactionsDTO;
-use App\DTO\Response\TransactionResponseDTO;
 use App\Entity\Method;
-use App\Entity\Transaction;
 use App\Entity\User;
 use App\Enum\Direction;
 use App\Manager\UserManager;
@@ -14,7 +11,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/user')]
@@ -91,22 +87,5 @@ class UserController extends AbstractController
         $methods = array_map(fn(Method $method) => $method->toArray(), $methods);
 
         return $this->json($methods);
-    }
-
-    #[Route(
-        path: '/{id}/transactions',
-        requirements: [
-            'id' => '\d+',
-        ],
-        methods: ['GET'])
-    ]
-    #[ParamConverter('user')]
-    public function getTransactions(
-        User $user,
-        #[MapQueryString] GetTransactionsDTO $dto,
-    ): Response {
-        $transactions = $this->userService->findTransactions($user, $dto);
-
-        return $this->json(array_map(fn(Transaction $transaction) => TransactionResponseDTO::fromEntity($transaction), $transactions));
     }
 }

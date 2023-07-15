@@ -6,9 +6,12 @@ use App\Enum\Direction;
 use App\Enum\Status;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class GetTransactionsDTO
+class GetTransactionsFilterDTO
 {
     public function __construct(
+        #[Assert\Positive]
+        public readonly ?int $payer = null,
+
         #[Assert\Positive]
         public readonly ?int $method = null,
 

@@ -69,23 +69,4 @@ class UserRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
-
-    /**
-     * get available products for user
-     * @param User $user
-     * @return array
-     */
-    public function findTransactions(User $user, ?Method $method, ?Direction $direction = null, ?Status $status = null): array
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-
-        $qb
-            ->select('t')
-            ->from(Transaction::class, 't')
-            ->leftJoin('t.payer', 'u')
-            ->where('u.id = :user_id')
-            ->setParameter('user_id', $user->getId());
-
-        return $qb->getQuery()->getResult();
-    }
 }

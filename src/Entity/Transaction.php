@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\EntityListener\TransactionListener;
 use App\Enum\Direction;
 use App\Enum\Status;
 use App\Repository\TransactionRepository;

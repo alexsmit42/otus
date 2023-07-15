@@ -70,6 +70,11 @@ class UserManager
         return true;
     }
 
+    public function getById(int $id): ?User
+    {
+        return $this->entityManager->getRepository(User::class)->find($id);
+    }
+
     public function getAll(): array
     {
         return $this->entityManager->getRepository(User::class)->findAll();
@@ -90,13 +95,5 @@ class UserManager
         }
 
         return $userRepository->findAvailableMethodsForDeposit($user);
-    }
-
-    public function findTransactions(User $user, ?Method $method, ?Direction $direction = null, ?Status $status = null): array
-    {
-        /** @var UserRepository $userRepository */
-        $userRepository = $this->entityManager->getRepository(User::class);
-
-        return $userRepository->findTransactions($user, $method, $direction, $status);
     }
 }
