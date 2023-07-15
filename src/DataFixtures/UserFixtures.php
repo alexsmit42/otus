@@ -2,8 +2,6 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Country;
-use App\Entity\Currency;
 use App\Entity\User;
 use App\Manager\CountryManager;
 use App\Manager\CurrencyManager;

@@ -5,7 +5,6 @@ namespace App\Manager;
 use App\DTO\Request\ManageCountryDTO;
 use App\Entity\Country;
 use Doctrine\ORM\EntityManagerInterface;
-use Throwable;
 
 class CountryManager
 {

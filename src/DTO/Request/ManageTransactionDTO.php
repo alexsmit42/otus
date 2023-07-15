@@ -2,11 +2,7 @@
 
 namespace App\DTO\Request;
 
-use App\Entity\Currency;
-use App\Entity\Method;
-use App\Entity\User;
 use App\Enum\Direction;
-use App\Enum\Status;
 use App\Validator as CustomAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 

@@ -6,7 +6,6 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 #[AsEventListener(event: ExceptionEvent::class)]
 class HttpExceptionListener
