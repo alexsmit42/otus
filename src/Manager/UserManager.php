@@ -4,8 +4,10 @@ namespace App\Manager;
 
 use App\Entity\Country;
 use App\Entity\Currency;
+use App\Entity\Method;
 use App\Entity\User;
 use App\Enum\Direction;
+use App\Enum\Status;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,5 +90,13 @@ class UserManager
         }
 
         return $userRepository->findAvailableMethodsForDeposit($user);
+    }
+
+    public function findTransactions(User $user, ?Method $method, ?Direction $direction = null, ?Status $status = null): array
+    {
+        /** @var UserRepository $userRepository */
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        return $userRepository->findTransactions($user, $method, $direction, $status);
     }
 }

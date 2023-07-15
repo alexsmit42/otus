@@ -10,7 +10,6 @@ use App\Enum\Status;
 use App\Repository\MethodRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Throwable;
 
 class MethodManager
 {
@@ -91,6 +90,11 @@ class MethodManager
         $this->entityManager->flush();
 
         return true;
+    }
+
+    public function getById(int $id): ?Method
+    {
+        return $this->entityManager->getRepository(Method::class)->find($id);
     }
 
     public function getAll(): array

@@ -2,22 +2,29 @@
 
 namespace App\Controller\Api;
 
+use App\DTO\Request\GetTransactionsDTO;
+use App\DTO\Response\TransactionResponseDTO;
 use App\Entity\Method;
+use App\Entity\Transaction;
 use App\Entity\User;
 use App\Enum\Direction;
 use App\Manager\UserManager;
+use App\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/user')]
 class UserController extends AbstractController
 {
 
-    public function __construct(private readonly UserManager $userManager)
-    {
+    public function __construct(
+        private readonly UserManager $userManager,
+        private readonly UserService $userService,
+    ) {
     }
 
     #[Route(path: '', methods: ['POST'])]
@@ -72,16 +79,34 @@ class UserController extends AbstractController
     #[Route(
         path: '/{id}/available-methods/{direction}',
         requirements: [
-            'id' => '\d+',
-            'direction' => 'deposit|withdraw'
+            'id'        => '\d+',
+            'direction' => 'deposit|withdraw',
         ],
         methods: ['GET'])
     ]
     #[ParamConverter('user', options: ['mapping' => ['id' => 'id']])]
-    public function getAvailableMethods(User $user, string $direction): Response {
+    public function getAvailableMethods(User $user, string $direction): Response
+    {
         $methods = $this->userManager->findAvailableMethods($user, Direction::fromString($direction));
         $methods = array_map(fn(Method $method) => $method->toArray(), $methods);
 
         return $this->json($methods);
+    }
+
+    #[Route(
+        path: '/{id}/transactions',
+        requirements: [
+            'id' => '\d+',
+        ],
+        methods: ['GET'])
+    ]
+    #[ParamConverter('user')]
+    public function getTransactions(
+        User $user,
+        #[MapQueryString] GetTransactionsDTO $dto,
+    ): Response {
+        $transactions = $this->userService->findTransactions($user, $dto);
+
+        return $this->json(array_map(fn(Transaction $transaction) => TransactionResponseDTO::fromEntity($transaction), $transactions));
     }
 }

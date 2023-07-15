@@ -3,9 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Method;
-use App\Entity\Product;
+use App\Entity\Transaction;
 use App\Entity\User;
+use App\Enum\Direction;
+use App\Enum\Status;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +17,11 @@ class UserRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
+    }
+
+    private function getMethodCriteria(Method $method): Criteria {
+        $criteria = Criteria::create();
+        $criteria->andWhere(Criteria::expr()->eq('u.method', $method));
     }
 
     private function createQueryBuilderForAvailableMethods(User $user): QueryBuilder {
@@ -67,16 +75,16 @@ class UserRepository extends ServiceEntityRepository
      * @param User $user
      * @return array
      */
-    public function findAvailableProducts(User $user): array
+    public function findTransactions(User $user, ?Method $method, ?Direction $direction = null, ?Status $status = null): array
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb
-            ->select('p')
-            ->from(Product::class, 'p')
-            ->leftJoin('p.country', 'c')
-            ->where('c.id = :country_id')
-            ->setParameter('country_id', $user->getCountry()->getId());
+            ->select('t')
+            ->from(Transaction::class, 't')
+            ->leftJoin('t.payer', 'u')
+            ->where('u.id = :user_id')
+            ->setParameter('user_id', $user->getId());
 
         return $qb->getQuery()->getResult();
     }
