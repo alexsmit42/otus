@@ -27,7 +27,7 @@ class ManageTransactionDTO
 
         #[Assert\NotBlank]
         #[CustomAssert\PaymentAccount]
-        public string $paymentDetails = '',
+        public string $payment_details = '',
     )
     {
     }

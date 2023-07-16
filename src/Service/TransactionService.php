@@ -44,11 +44,11 @@ class TransactionService
         return $this->transactionManager->getTransactions($user, $method, $dto->direction, $dto->status);
     }
 
-    public function createFromDTO(ManageTransactionDTO $dto): ?Transaction {
+    public function createFromDTO(ManageTransactionDTO $dto): bool {
         $transaction = $this->transactionManager->createFromDTO($dto);
 
         if (!$this->isAllowedTransactionCreate($transaction)) {
-            return null;
+            return false;
         }
 
         $userAmount = $this->exchangeService->convertAmount(
@@ -63,7 +63,7 @@ class TransactionService
 
         $this->transactionManager->save($transaction);
 
-        return $transaction;
+        return true;
     }
 
     public function updateStatus(Transaction $transaction, Status $status): bool {

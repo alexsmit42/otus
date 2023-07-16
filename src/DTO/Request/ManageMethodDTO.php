@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ManageMethodDTO
 {
     public function __construct(
-        #[Assert\Length(max: 40, maxMessage: 'The name length should be less then 40')]
+        #[Assert\Length(max: 40, maxMessage: 'The name length should be less than 40')]
         public readonly ?string $name = null,
 
         #[Assert\Positive]

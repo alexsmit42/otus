@@ -49,7 +49,7 @@ class TransactionManager
         $transaction->setDirection($dto->direction);
         $transaction->setPayer($payer);
         $transaction->setMethod($method);
-        $transaction->setPaymentDetails($dto->paymentDetails);
+        $transaction->setPaymentDetails($dto->payment_details);
 
         return $transaction;
     }

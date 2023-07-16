@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\DTO\Request\GetTransactionsFilterDTO;
+use App\DTO\Request\ManageTransactionDTO;
 use App\DTO\Response\TransactionResponseDTO;
 use App\Entity\Transaction;
 use App\Enum\Status;
@@ -12,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/transaction')]
@@ -20,6 +22,16 @@ class TransactionController extends AbstractController
     public function __construct(
         private readonly TransactionService $transactionService,
     ) {
+    }
+
+    #[Route(path: '', methods: ['POST'])]
+    public function createTransaction(
+        #[MapRequestPayload] ManageTransactionDTO $dto,
+    ): Response
+    {
+        $result = $this->transactionService->createFromDTO($dto);
+
+        return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     #[Route(path: '',  methods: ['GET'])]
@@ -38,7 +50,7 @@ class TransactionController extends AbstractController
         return $this->json(TransactionResponseDTO::fromEntity($transaction), Response::HTTP_OK);
     }
 
-    #[Route(path: '/update-status/{id}', methods: ['PATCH'])]
+    #[Route(path: '/{id}/update-status', methods: ['PATCH'])]
     #[ParamConverter('transaction')]
     public function updateStatus(Transaction $transaction, Request $request): Response
     {
