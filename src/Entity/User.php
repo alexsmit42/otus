@@ -7,13 +7,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\Index(columns: ['country_id'], name: 'user__country_id__index')]
 #[ORM\Index(columns: ['currency_id'], name: 'user__currency_id__index')]
 #[UniqueConstraint(name: "uniq__user_login", columns: ["login"])]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -22,6 +24,9 @@ class User
 
     #[ORM\Column(length: 50, unique: true)]
     private ?string $login = null;
+
+    #[ORM\Column(type: 'string', length: 120, nullable: false)]
+    private string $password;
 
     #[ORM\Column(
         type: 'decimal',
@@ -46,6 +51,9 @@ class User
     #[ORM\OneToMany(mappedBy: 'buyer', targetEntity: Purchase::class)]
     private Collection $purchases;
 
+    #[ORM\Column(type: 'json', length: 1024, nullable: false)]
+    private array $roles = [];
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
@@ -67,6 +75,16 @@ class User
         $this->login = $login;
 
         return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 
     public function getBalance(): float
@@ -153,6 +171,19 @@ class User
         return $this;
     }
 
+    public function getRoles(): array
+    {
+        $roles   = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
+    }
+
     public function toArray(): array
     {
         return [
@@ -161,6 +192,17 @@ class User
             'balance'  => $this->getBalance(),
             'country'  => $this->getCountry()->toArray(),
             'currency' => $this->getCurrency()->toArray(),
+            'roles'    => $this->getRoles(),
         ];
+    }
+
+    public function eraseCredentials()
+    {
+
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->login;
     }
 }
