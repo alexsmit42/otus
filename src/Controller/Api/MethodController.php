@@ -13,8 +13,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/api/method')]
+#[IsGranted('ROLE_VIEW')]
 class MethodController extends AbstractController
 {
 
@@ -23,21 +25,21 @@ class MethodController extends AbstractController
     }
 
     #[Route(path: '', methods: ['POST'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function createMethod(
         #[MapRequestPayload] ManageMethodDTO $dto,
-    ): Response
-    {
+    ): Response {
         $country = $this->methodManager->createFromDTO($dto);
 
         return $this->json(['id' => $country->getId()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['PATCH'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function updateMethod(
         int $id,
         #[MapRequestPayload] ManageMethodDTO $dto,
-    ): Response
-    {
+    ): Response {
         $result = $this->methodManager->updateFromDTO($id, $dto);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
@@ -60,6 +62,7 @@ class MethodController extends AbstractController
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     #[Entity('method')]
+    #[IsGranted('ROLE_MODERATOR')]
     public function deleteMethod(Method $method): Response
     {
         $result = $this->methodManager->delete($method);
@@ -74,6 +77,7 @@ class MethodController extends AbstractController
     ]
     #[ParamConverter('method', options: ['mapping' => ['method_id' => 'id']])]
     #[ParamConverter('country', options: ['mapping' => ['country_id' => 'id']])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function addCountryToMethod(Method $method, Country $country): Response
     {
         $result = $this->methodManager->addCountry($method, $country);
@@ -88,6 +92,7 @@ class MethodController extends AbstractController
     ]
     #[ParamConverter('method', options: ['mapping' => ['method_id' => 'id']])]
     #[ParamConverter('country', options: ['mapping' => ['country_id' => 'id']])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function removeCountryFromMethod(Method $method, Country $country): Response
     {
         $result = $this->methodManager->removeCountry($method, $country);
