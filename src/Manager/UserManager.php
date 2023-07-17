@@ -2,28 +2,35 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\ManageUserDTO;
 use App\Entity\Country;
 use App\Entity\Currency;
-use App\Entity\Method;
 use App\Entity\User;
 use App\Enum\Direction;
-use App\Enum\Status;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
+    ) {
     }
 
-    public function createFromRequest(Request $request): ?User
+    private function save(User $user): void
     {
-        $login      = $request->request->get('login');
-        $countryId  = $request->request->get('country_id');
-        $currencyId = $request->request->get('currency_id');
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function createFromDTO(ManageUserDTO $dto): ?User
+    {
+        $login      = $dto->login;
+        $countryId  = $dto->country;
+        $currencyId = $dto->currency;
 
         if ($this->findByLogin($login)) {
             throw new UnprocessableEntityHttpException('Incorrect login');
@@ -40,24 +47,41 @@ class UserManager
         $user->setLogin($login);
         $user->setCurrency($currency);
         $user->setCountry($country);
+        $user->setRoles($dto->roles);
+        $user->setPassword($this->userPasswordHasher->hashPassword($user, $dto->password));
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $this->save($user);
 
         return $user;
     }
 
-    public function update(int $id, int $countryId): bool
+    public function updateFromDTO(User $user, ManageUserDTO $dto): bool
     {
-        $user    = $this->entityManager->getRepository(User::class)->find($id);
-        $country = $this->entityManager->getRepository(Country::class)->find($countryId);
+        $country = $this->entityManager->getRepository(Country::class)->find($dto->country);
 
-        if (!$user || !$country) {
-            throw new UnprocessableEntityHttpException('User or country do not exist');
+        if ($country === null) {
+            throw new UnprocessableEntityHttpException('Country does not exist');
         }
 
         $user->setCountry($country);
-        $this->entityManager->flush();
+        $user->setRoles($dto->roles);
+
+        $this->save($user);
+
+        return true;
+    }
+
+    public function updatePassword(User $user, string $password): bool
+    {
+        $newHash = $this->userPasswordHasher->hashPassword($user, $password);
+
+        if ($user->getPassword() === $newHash) {
+            throw new UnprocessableEntityHttpException('This password is already in use');
+        }
+
+        $user->setPassword($newHash);
+
+        $this->save($user);
 
         return true;
     }

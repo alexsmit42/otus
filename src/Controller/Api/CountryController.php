@@ -12,8 +12,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/api/country')]
+#[IsGranted('ROLE_VIEW')]
 class CountryController extends AbstractController
 {
 
@@ -22,10 +24,10 @@ class CountryController extends AbstractController
     }
 
     #[Route(path: '', methods: ['POST'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function createCountry(
         #[MapRequestPayload] ManageCountryDTO $countryRequestDTO,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $country = $this->countryManager->createfromDTO($countryRequestDTO);
 
         return $this->json(['id' => $country->getId()], Response::HTTP_OK);
@@ -56,6 +58,7 @@ class CountryController extends AbstractController
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     #[Entity('country')]
+    #[IsGranted('ROLE_MODERATOR')]
     public function deleteCountry(Country $country): Response
     {
         $result = $this->countryManager->delete($country);

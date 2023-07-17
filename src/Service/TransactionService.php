@@ -11,6 +11,8 @@ use App\Manager\MethodManager;
 use App\Manager\TransactionManager;
 use App\Manager\UserManager;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class TransactionService
 {
@@ -20,6 +22,7 @@ class TransactionService
         private readonly TransactionManager $transactionManager,
         private readonly UserBalanceService $balanceService,
         private readonly ExchangeService $exchangeService,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
@@ -41,10 +44,16 @@ class TransactionService
             }
         }
 
+        // access only for ROLE_SUPPORT or for transactions where user is owner
+        if (!$this->authorizationChecker->isGranted('get_transaction', $user)) {
+            throw new AuthenticationException('Access denied');
+        }
+
         return $this->transactionManager->getTransactions($user, $method, $dto->direction, $dto->status);
     }
 
-    public function createFromDTO(ManageTransactionDTO $dto): bool {
+    public function createFromDTO(ManageTransactionDTO $dto): bool
+    {
         $transaction = $this->transactionManager->createFromDTO($dto);
 
         if (!$this->isAllowedTransactionCreate($transaction)) {
@@ -66,7 +75,8 @@ class TransactionService
         return true;
     }
 
-    public function updateStatus(Transaction $transaction, Status $status): bool {
+    public function updateStatus(Transaction $transaction, Status $status): bool
+    {
         // if final status or same
         if (!$this->isAllowedToChangeStatus($transaction, $status)) {
             return false;

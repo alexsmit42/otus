@@ -10,8 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/api/currency')]
+#[IsGranted('ROLE_VIEW')]
 class CurrencyController extends AbstractController
 {
 
@@ -20,21 +22,21 @@ class CurrencyController extends AbstractController
     }
 
     #[Route(path: '', methods: ['POST'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function createCurrency(
         #[MapRequestPayload] ManageCurrencyDTO $dto,
-    ): Response
-    {
+    ): Response {
         $currency = $this->currencyManager->createFromDTO($dto);
 
         return $this->json(['id' => $currency->getId()], Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['PATCH'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function updateCurrency(
         int $id,
         #[MapRequestPayload] ManageCurrencyDTO $dto,
-    ): Response
-    {
+    ): Response {
         $result = $this->currencyManager->updateFromDto($id, $dto);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
@@ -65,6 +67,7 @@ class CurrencyController extends AbstractController
 
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     #[Entity('currency', expr: 'repository.find(id)')]
+    #[IsGranted('ROLE_MODERATOR')]
     public function deleteCurrency(Currency $currency): Response
     {
         $result = $this->currencyManager->delete($currency);

@@ -15,26 +15,30 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/api/transaction')]
 class TransactionController extends AbstractController
 {
     public function __construct(
         private readonly TransactionService $transactionService,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
     #[Route(path: '', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function createTransaction(
         #[MapRequestPayload] ManageTransactionDTO $dto,
-    ): Response
-    {
+    ): Response {
         $result = $this->transactionService->createFromDTO($dto);
 
         return $this->json(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    #[Route(path: '',  methods: ['GET'])]
+    #[Route(path: '', methods: ['GET'])]
     public function getTransactions(
         #[MapQueryString] ?GetTransactionsFilterDTO $dto,
     ): Response {
@@ -47,11 +51,17 @@ class TransactionController extends AbstractController
     #[ParamConverter('transaction')]
     public function getTransaction(Transaction $transaction): Response
     {
+        // access only for ROLE_SUPPORT or for transactions where user is owner
+        if (!$this->authorizationChecker->isGranted('get_transaction', $transaction->getPayer())) {
+            throw new AuthenticationException('Access denied');
+        }
+
         return $this->json(TransactionResponseDTO::fromEntity($transaction), Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}/update-status', methods: ['PATCH'])]
     #[ParamConverter('transaction')]
+    #[IsGranted('ROLE_SUPPORT')]
     public function updateStatus(Transaction $transaction, Request $request): Response
     {
         $status = Status::tryFrom($request->getPayload()->get('status'));
