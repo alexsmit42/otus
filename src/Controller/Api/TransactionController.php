@@ -51,6 +51,7 @@ class TransactionController extends AbstractController
     #[ParamConverter('transaction')]
     public function getTransaction(Transaction $transaction): Response
     {
+        // access only for ROLE_SUPPORT or for transactions where user is owner
         if (!$this->authorizationChecker->isGranted('get_transaction', $transaction->getPayer())) {
             throw new AuthenticationException('Access denied');
         }

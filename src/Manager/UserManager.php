@@ -76,7 +76,7 @@ class UserManager
         $newHash = $this->userPasswordHasher->hashPassword($user, $password);
 
         if ($user->getPassword() === $newHash) {
-            throw new UnprocessableEntityHttpException('This password already use');
+            throw new UnprocessableEntityHttpException('This password is already in use');
         }
 
         $user->setPassword($newHash);

@@ -44,6 +44,7 @@ class TransactionService
             }
         }
 
+        // access only for ROLE_SUPPORT or for transactions where user is owner
         if (!$this->authorizationChecker->isGranted('get_transaction', $user)) {
             throw new AuthenticationException('Access denied');
         }
