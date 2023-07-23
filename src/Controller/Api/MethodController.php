@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/api/method')]
-#[IsGranted('ROLE_VIEW')]
+//#[IsGranted('ROLE_VIEW')]
 class MethodController extends AbstractController
 {
 

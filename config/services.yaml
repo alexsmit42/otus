@@ -28,5 +28,10 @@ services:
     arguments:
       $tokenTTL: '%env(JWT_TTL_SEC)%'
 
+  monolog.formatter.app_formatter:
+    class: Monolog\Formatter\LineFormatter
+    arguments:
+      - "[%%level_name%%]: [%%datetime%%] %%message%%\n"
+
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
