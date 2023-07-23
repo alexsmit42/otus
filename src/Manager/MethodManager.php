@@ -10,10 +10,18 @@ use App\Enum\Status;
 use App\Repository\MethodRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class MethodManager
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    private const CACHE_TAG = 'methods';
+    private const EXPIRE_CACHE = 60 * 60;
+
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TagAwareCacheInterface $cache,
+    )
     {
     }
 
@@ -42,6 +50,8 @@ class MethodManager
             $method->setMaxLimit($dto->max_limit);
 
             $this->save($method);
+
+            $this->cache->invalidateTags([self::CACHE_TAG]);
         }
 
         return $method;
@@ -69,7 +79,9 @@ class MethodManager
     public function delete(Method $method): bool
     {
         $this->entityManager->remove($method);
-        $this->entityManager->flush();
+        $this->save($method);
+
+        $this->cache->invalidateTags([self::CACHE_TAG]);
 
         return true;
     }
@@ -78,7 +90,7 @@ class MethodManager
     {
         $method->addCountry($country);
 
-        $this->entityManager->flush();
+        $this->save($method);
 
         return true;
     }
@@ -87,7 +99,7 @@ class MethodManager
     {
         $method->removeCountry($country);
 
-        $this->entityManager->flush();
+        $this->save($method);
 
         return true;
     }
@@ -99,7 +111,11 @@ class MethodManager
 
     public function getAll(): array
     {
-        return $this->entityManager->getRepository(Method::class)->findAll();
+        return $this->cache->get('methods.all', function (ItemInterface $item): array {
+            $item->tag(self::CACHE_TAG);
+            $item->expiresAfter(self::EXPIRE_CACHE);
+            return $this->entityManager->getRepository(Method::class)->findAll();
+        });
     }
 
     public function findByName(string $name): ?Method
