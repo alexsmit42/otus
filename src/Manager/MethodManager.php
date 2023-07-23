@@ -8,6 +8,7 @@ use App\Entity\Method;
 use App\Entity\User;
 use App\Enum\Status;
 use App\Repository\MethodRepository;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -15,7 +16,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class MethodManager
 {
-    private const CACHE_TAG = 'methods';
+    public const CACHE_TAG = 'methods';
     private const EXPIRE_CACHE = 60 * 60;
 
     public function __construct(
@@ -79,7 +80,7 @@ class MethodManager
     public function delete(Method $method): bool
     {
         $this->entityManager->remove($method);
-        $this->save($method);
+        $this->entityManager->flush();
 
         $this->cache->invalidateTags([self::CACHE_TAG]);
 
@@ -92,6 +93,8 @@ class MethodManager
 
         $this->save($method);
 
+        $this->cache->invalidateTags([UserService::CACHE_TAG_METHODS_USERS]);
+
         return true;
     }
 
@@ -100,6 +103,8 @@ class MethodManager
         $method->removeCountry($country);
 
         $this->save($method);
+
+        $this->cache->invalidateTags([UserService::CACHE_TAG_METHODS_USERS]);
 
         return true;
     }

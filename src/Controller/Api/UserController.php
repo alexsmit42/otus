@@ -7,6 +7,7 @@ use App\Entity\Method;
 use App\Entity\User;
 use App\Enum\Direction;
 use App\Manager\UserManager;
+use App\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ class UserController extends AbstractController
 
     public function __construct(
         private readonly UserManager $userManager,
+        private readonly UserService $userService,
     ) {
     }
 
@@ -101,7 +103,7 @@ class UserController extends AbstractController
     #[IsGranted('view_available_methods', 'user')]
     public function getAvailableMethods(User $user, string $direction): Response
     {
-        $methods = $this->userManager->findAvailableMethods($user, Direction::fromString($direction));
+        $methods = $this->userService->getAvailableMethods($user, Direction::fromString($direction));
         $methods = array_map(fn(Method $method) => $method->toArray(), $methods);
 
         return $this->json($methods);

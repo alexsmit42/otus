@@ -8,15 +8,18 @@ use App\Entity\Currency;
 use App\Entity\User;
 use App\Enum\Direction;
 use App\Repository\UserRepository;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class UserManager
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly TagAwareCacheInterface $cache,
     ) {
     }
 
@@ -67,6 +70,9 @@ class UserManager
         $user->setRoles($dto->roles);
 
         $this->save($user);
+
+        // invalidate user_methods cache when country changes
+        $this->cache->invalidateTags([UserService::CACHE_TAG_METHODS_USER_PREFIX . $user->getId()]);
 
         return true;
     }
