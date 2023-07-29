@@ -61,6 +61,9 @@ class Transaction
     #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id', nullable: false)]
     private Method $method;
 
+    #[ORM\OneToOne(mappedBy: 'transaction', cascade: ['persist', 'remove'])]
+    private ?Ticket $ticket = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -199,5 +202,22 @@ class Transaction
             'created_at'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at'      => $this->getUpdatedAt()->format('Y-m-d H:i:s'),
         ];
+    }
+
+    public function getTicket(): ?Ticket
+    {
+        return $this->ticket;
+    }
+
+    public function setTicket(Ticket $ticket): static
+    {
+        // set the owning side of the relation if necessary
+        if ($ticket->getTransaction() !== $this) {
+            $ticket->setTransaction($this);
+        }
+
+        $this->ticket = $ticket;
+
+        return $this;
     }
 }
