@@ -59,18 +59,6 @@
             "config/packages/lexik_jwt_authentication.yaml"
         ]
     },
-    "php-http/discovery": {
-        "version": "1.19",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "1.18",
-            "ref": "f45b5dd173a27873ab19f5e3180b2f661c21de02"
-        },
-        "files": [
-            "config/packages/http_discovery.yaml"
-        ]
-    },
     "nyholm/psr7": {
         "version": "1.8",
         "recipe": {
@@ -81,6 +69,19 @@
         },
         "files": [
             "config/packages/nyholm_psr7.yaml"
+        ]
+    },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "2.11",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        },
+        "files": [
+            "config/packages/old_sound_rabbit_mq.yaml",
+            "src/Consumer/.gitignore"
         ]
     },
     "php-http/discovery": {
@@ -114,18 +115,6 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "sentry/sentry-symfony": {
-        "version": "4.9",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "4.6",
-            "ref": "f7b4706a3e8a6f096b7392f3146f4f7f65ff594c"
-        },
-        "files": [
-            "config/packages/sentry.yaml"
         ]
     },
     "sentry/sentry-symfony": {
