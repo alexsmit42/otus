@@ -54,7 +54,7 @@ class TransactionManager
         return $transaction;
     }
 
-    public function getById(int $id): Transaction
+    public function getById(int $id): ?Transaction
     {
         return $this->entityManager->getRepository(Transaction::class)->find($id);
     }
