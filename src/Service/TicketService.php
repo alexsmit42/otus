@@ -4,20 +4,15 @@ namespace App\Service;
 
 use App\Consumer\Ticket\Input\TicketMessage;
 use App\Entity\Ticket;
-use App\Entity\User;
 use App\Manager\TicketManager;
 use App\Manager\TransactionManager;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class TicketService
 {
 
     public function __construct(
         private readonly TransactionManager $transactionManager,
-        private readonly TicketManager $ticketManager,
-        private readonly Security $security,
-        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly TicketManager $ticketManager
     )
     {
     }
@@ -28,12 +23,10 @@ class TicketService
             return null;
         }
 
-        /** @var User $user */
-        $user = $this->security->getUser();
-        if (!$this->authorizationChecker->isGranted('create_ticket', $user)) {
+        if ($this->ticketManager->findByTransaction($transaction)) {
             return null;
         }
 
-        return $this->ticketManager->createTicket($transaction, $user);
+        return $this->ticketManager->createTicket($transaction);
     }
 }

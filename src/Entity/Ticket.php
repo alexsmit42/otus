@@ -35,7 +35,7 @@ class Ticket
     private ?Transaction $transaction = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(name: 'moderator_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'moderator_id', referencedColumnName: 'id', nullable: true)]
     private ?User $moderator = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
