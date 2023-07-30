@@ -28,6 +28,10 @@ services:
     arguments:
       $tokenTTL: '%env(JWT_TTL_SEC)%'
 
+  App\Service\AsyncService:
+    calls:
+      - [ 'registerProducer', [ !php/const App\Service\AsyncService::ADD_TICKET, '@old_sound_rabbit_mq.add_tickets_producer' ] ]
+
   monolog.formatter.app_formatter:
     class: Monolog\Formatter\LineFormatter
     arguments:

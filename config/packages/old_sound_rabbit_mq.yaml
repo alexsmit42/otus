@@ -4,15 +4,15 @@ old_sound_rabbit_mq:
             url: '%env(RABBITMQ_URL)%'
 
     producers:
-        add_followers:
+        add_tickets:
             connection: default
-            exchange_options: {name: 'old_sound_rabbit_mq.add_followers', type: direct}
+            exchange_options: {name: 'old_sound_rabbit_mq.add_tickets', type: direct}
 
     consumers:
-        add_followers:
+        add_tickets:
             connection: default
-            exchange_options: {name: 'old_sound_rabbit_mq.add_followers', type: direct}
-            queue_options: {name: 'old_sound_rabbit_mq.consumer.add_followers'}
+            exchange_options: {name: 'old_sound_rabbit_mq.add_tickets', type: direct}
+            queue_options: {name: 'old_sound_rabbit_mq.consumer.add_tickets'}
             callback: App\Consumer\Ticket\Consumer
             idle_timeout: 300
             idle_timeout_exit_code: 0

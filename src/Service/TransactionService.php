@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Consumer\Ticket\Input\TicketMessage;
 use App\DTO\Request\GetTransactionsFilterDTO;
 use App\DTO\Request\ManageTransactionDTO;
 use App\Entity\Transaction;
@@ -22,6 +23,7 @@ class TransactionService
         private readonly TransactionManager $transactionManager,
         private readonly UserBalanceService $balanceService,
         private readonly ExchangeService $exchangeService,
+        private readonly AsyncService $asyncService,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
@@ -68,9 +70,12 @@ class TransactionService
 
         $transaction->setUserAmount($userAmount);
 
-        $this->balanceService->updateBalance($transaction);
-
         $this->transactionManager->save($transaction);
+
+        $this->balanceService->updateBalance($transaction);
+        // tickets queue
+        $ticketMessage = (new TicketMessage($transaction->getId()))->toAMQPMessage();
+        $this->asyncService->publishToExchange(AsyncService::ADD_TICKET, $ticketMessage);
 
         return true;
     }
