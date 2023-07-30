@@ -6,9 +6,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class CreateTicketVoter extends Voter
+class TicketVoter extends Voter
 {
-    private const CREATE_TICKET = 'create_ticket';
+    private const TAKE_TICKET = 'take_ticket';
 
     public function __construct(
         private Security $security,
@@ -17,7 +17,7 @@ class CreateTicketVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if ($attribute !== self::CREATE_TICKET) {
+        if ($attribute !== self::TAKE_TICKET) {
             return false;
         }
 
