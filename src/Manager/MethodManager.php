@@ -52,6 +52,7 @@ class MethodManager
 
             $this->save($method);
 
+            // при добавлении нового метода чистим кеш методов
             $this->cache->invalidateTags([self::CACHE_TAG]);
         }
 
@@ -82,6 +83,7 @@ class MethodManager
         $this->entityManager->remove($method);
         $this->entityManager->flush();
 
+        // при удалении нового метода чистим кеш методов
         $this->cache->invalidateTags([self::CACHE_TAG]);
 
         return true;
@@ -93,6 +95,7 @@ class MethodManager
 
         $this->save($method);
 
+        // при добавлении новой страны в метод чистим кеш доступных пользователю методов
         $this->cache->invalidateTags([UserService::CACHE_TAG_METHODS_USERS]);
 
         return true;
@@ -104,6 +107,7 @@ class MethodManager
 
         $this->save($method);
 
+        // при удалении страны из чистим кеш доступных пользователю методов
         $this->cache->invalidateTags([UserService::CACHE_TAG_METHODS_USERS]);
 
         return true;

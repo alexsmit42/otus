@@ -39,6 +39,11 @@ class TicketManager
         return $this->entityManager->getRepository(Ticket::class)->findOneBy(['transaction' => $transaction]);
     }
 
+    /**
+     * Берем самый старый по времени тикет со статусом NEW
+     *
+     * @return Ticket|null
+     */
     public function takeNewTicket(): ?Ticket {
         return $this->entityManager->getRepository(Ticket::class)->findOneBy(['status' => Status::NEW], ['created_at' => 'ASC']);
     }

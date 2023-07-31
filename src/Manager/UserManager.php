@@ -71,7 +71,7 @@ class UserManager
 
         $this->save($user);
 
-        // invalidate user_methods cache when country changes
+        // Чистим кеш доступных пользователю методов при изменении страны пользователя
         $this->cache->invalidateTags([UserService::CACHE_TAG_METHODS_USER_PREFIX . $user->getId()]);
 
         return true;
