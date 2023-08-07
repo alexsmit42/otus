@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Consumer\Ticket\Input;
+namespace App\DTO\Message;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class TicketMessage
+class TicketMessageDTO
 {
     public function __construct(
         #[Assert\Type('numeric')]

@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Consumer\Ticket\Input\TicketMessage;
+use App\DTO\Message\TicketMessageDTO;
 use App\Entity\Ticket;
 use App\Enum\Status;
 use App\Manager\TicketManager;
@@ -30,19 +30,19 @@ class TicketService
     /**
      * При получении из очереди порции новых транзакций, для них создаются сущности тикетов
      *
-     * @param TicketMessage $ticketMessage
+     * @param TicketMessageDTO $ticketMessageDTO
      * @return Ticket|null
      */
-    public function createTicketFromAMQP(TicketMessage $ticketMessage): ?Ticket {
-        $transaction = $this->transactionManager->getById($ticketMessage->getTransactionId());
+    public function createTicketFromDTO(TicketMessageDTO $ticketMessageDTO): ?Ticket {
+        $transaction = $this->transactionManager->getById($ticketMessageDTO->getTransactionId());
         if ($transaction === null) {
-            $this->logger->notice("Ticket for non existing transaction {$ticketMessage->getTransactionId()}");
+            $this->logger->notice("Ticket for non existing transaction {$ticketMessageDTO->getTransactionId()}");
             return null;
         }
 
         // проверяем что для данной транзакции тикетов еще не было
         if ($this->ticketManager->findByTransaction($transaction)) {
-            $this->logger->notice("Transaction {$ticketMessage->getTransactionId()} already has a ticket");
+            $this->logger->notice("Transaction {$ticketMessageDTO->getTransactionId()} already has a ticket");
             return null;
         }
 
