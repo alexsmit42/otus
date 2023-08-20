@@ -52,7 +52,7 @@ class UserRepository extends ServiceEntityRepository
      * @param User $user
      * @return array
      */
-    public function findAvailableMethodsForWithdraw(User $user): array {
+    public function findAvailableMethodsForWithdraw(User $user, float $balance): array {
         $qb = $this->createQueryBuilderForAvailableMethods($user);
 
         $qb
@@ -65,7 +65,7 @@ class UserRepository extends ServiceEntityRepository
                     )
                 )
             )
-            ->setParameter('balance', $user->getBalance());
+            ->setParameter('balance', $balance);
 
         return $qb->getQuery()->getResult();
     }
