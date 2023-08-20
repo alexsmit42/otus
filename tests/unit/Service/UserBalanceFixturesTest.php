@@ -29,23 +29,36 @@ class UserBalanceFixturesTest extends FixturedTestCase
 
     public function sufficientBalanceDataProvider(): array
     {
-        /** @var UserPasswordHasherInterface $encoder */
-        $encoder = self::getContainer()->get('security.password_hasher');
-        /** @var TagAwareCacheInterface $cache */
-        $cache = self::getContainer()->get('redis_adapter');
-
-        $userManager = new UserManager($this->getDoctrineManager(), $encoder, $cache);
-        $currencyManager = new CurrencyManager($this->getDoctrineManager());
-
-        $userEur100 = $userManager->findByLogin(MultipleUsersFixture::EUR_100);
-        $rub = $currencyManager->findByIso(MultipleCurrenciesFixture::RUB);
-
         return [
             'eur100_rub100' => [
-                $userEur100,
+                MultipleUsersFixture::GE_EUR_100,
                 100,
-                $rub,
+                MultipleCurrenciesFixture::RUB,
                 true,
+            ],
+            'rub100_eur100' => [
+                MultipleUsersFixture::RU_RUB_100,
+                100,
+                MultipleCurrenciesFixture::EUR,
+                false,
+            ],
+            'rub100_rub100' => [
+                MultipleUsersFixture::RU_RUB_100,
+                100,
+                MultipleCurrenciesFixture::RUB,
+                true,
+            ],
+            'usd100_rub10000' => [
+                MultipleUsersFixture::RU_USD_100,
+                10000,
+                MultipleCurrenciesFixture::RUB,
+                true,
+            ],
+            'rub0_rub100' => [
+                MultipleUsersFixture::RU_RUB_0,
+                100,
+                MultipleCurrenciesFixture::RUB,
+                false,
             ],
         ];
     }
@@ -53,12 +66,22 @@ class UserBalanceFixturesTest extends FixturedTestCase
     /**
      * @dataProvider sufficientBalanceDataProvider
      */
-    public function testBalanceSufficient(User $user, float $amount, Currency $currency, bool $expected): void
+    public function testBalanceSufficient(string $login, float $amount, string $iso, bool $expected): void
     {
+        /** @var UserPasswordHasherInterface $encoder */
+        $encoder = self::getContainer()->get('security.password_hasher');
+        /** @var TagAwareCacheInterface $cache */
+        $cache = self::getContainer()->get('redis_adapter');
+
+        $userManager = new UserManager($this->getDoctrineManager(), $encoder, $cache);
+        $currencyManager = new CurrencyManager($this->getDoctrineManager());
         $userBalanceService = new UserBalanceService(
             $this->getDoctrineManager(),
             new ExchangeService(),
         );
+
+        $user = $userManager->findByLogin($login);
+        $currency = $currencyManager->findByIso($iso);
 
         static::assertSame($expected, $userBalanceService->isBalanceSufficient($user, $amount, $currency));
     }

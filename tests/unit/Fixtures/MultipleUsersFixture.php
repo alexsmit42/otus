@@ -10,10 +10,12 @@ use Doctrine\Persistence\ObjectManager;
 
 class MultipleUsersFixture extends Fixture
 {
-    public const RUB_100 = 'RUB_100';
-    public const RUB_1000 = 'RUB_1000';
-    public const USD_100 = 'USD_100';
-    public const EUR_100 = 'EUR_100';
+    public const RU_RUB_0 = 'RUB_0';
+    public const RU_RUB_100  = 'RUB_100';
+    public const RU_RUB_1000 = 'RUB_1000';
+    public const RU_USD_100  = 'USD_100';
+    public const GE_EUR_100  = 'EUR_100';
+    public const BY_RUB_100  = 'BY_RUB_100';
 
     public function load(ObjectManager $manager)
     {
@@ -21,33 +23,45 @@ class MultipleUsersFixture extends Fixture
         $eur = $this->getReference(MultipleCurrenciesFixture::EUR);
         $usd = $this->getReference(MultipleCurrenciesFixture::USD);
 
-        $russia = $this->getReference(MultipleCountriesFixture::RUSSIA);
+        $russia  = $this->getReference(MultipleCountriesFixture::RUSSIA);
         $germany = $this->getReference(MultipleCountriesFixture::GERMANY);
+        $belarus = $this->getReference(MultipleCountriesFixture::BELARUS);
 
         $this->addReference(
-            self::RUB_100,
-            $this->makeUser($manager, self::RUB_100, $rub, 100, $russia)
+            self::RU_RUB_0,
+            $this->makeUser($manager, self::RU_RUB_0, $rub, 0, $russia)
         );
 
         $this->addReference(
-            self::RUB_1000,
-            $this->makeUser($manager, self::RUB_1000, $rub, 1000, $russia)
+            self::RU_RUB_100,
+            $this->makeUser($manager, self::RU_RUB_100, $rub, 100, $russia)
         );
 
         $this->addReference(
-            self::USD_100,
-            $this->makeUser($manager, self::USD_100, $usd, 100, $russia)
+            self::RU_RUB_1000,
+            $this->makeUser($manager, self::RU_RUB_1000, $rub, 1000, $russia)
         );
 
         $this->addReference(
-            self::EUR_100,
-            $this->makeUser($manager, self::EUR_100, $eur, 100, $germany)
+            self::RU_USD_100,
+            $this->makeUser($manager, self::RU_USD_100, $usd, 100, $russia)
+        );
+
+        $this->addReference(
+            self::GE_EUR_100,
+            $this->makeUser($manager, self::GE_EUR_100, $eur, 100, $germany)
+        );
+
+        $this->addReference(
+            self::BY_RUB_100,
+            $this->makeUser($manager, self::BY_RUB_100, $eur, 100, $belarus)
         );
 
         $manager->flush();
     }
 
-    private function makeUser(ObjectManager $manager, string $login, Currency $currency, float $balance, Country $country): User {
+    private function makeUser(ObjectManager $manager, string $login, Currency $currency, float $balance, Country $country): User
+    {
         $user = new User();
         $user->setLogin($login);
         $user->setPassword("{$login}_123");
