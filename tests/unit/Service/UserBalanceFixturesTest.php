@@ -2,8 +2,6 @@
 
 namespace UnitTests\Service;
 
-use App\Entity\Currency;
-use App\Entity\User;
 use App\Manager\CurrencyManager;
 use App\Manager\UserManager;
 use App\Service\ExchangeService;

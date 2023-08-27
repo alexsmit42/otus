@@ -3,9 +3,7 @@
 namespace UnitTests\Service;
 
 use App\Entity\Method;
-use App\Entity\User;
 use App\Enum\Direction;
-use App\Manager\MethodManager;
 use App\Manager\UserManager;
 use App\Service\UserService;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -36,7 +34,7 @@ class UserServiceFixturesTest extends FixturedTestCase
         /** @var TagAwareCacheInterface $cache */
         $cache = self::getContainer()->get('redis_adapter');
 
-        $this->userManager   = new UserManager($this->getDoctrineManager(), $encoder, $cache);
+        $this->userManager = new UserManager($this->getDoctrineManager(), $encoder, $cache);
         $this->userService = new UserService($this->userManager, $cache);
     }
 
@@ -58,27 +56,27 @@ class UserServiceFixturesTest extends FixturedTestCase
         ];
     }
 
-    ///**
-    // * @dataProvider availableMethodsDepositDataProvider
-    // */
-    //public function testAvailableMethodsDeposit(string $login, array $expected): void
-    //{
-    //    $user = $this->userManager->findByLogin($login);
-    //    $methods = array_map(function (Method $method) {
-    //        return $method->getName();
-    //    }, $this->userService->getAvailableMethods($user));
-    //
-    //    static::assertSame($expected, $methods);
-    //}
+    /**
+     * @dataProvider availableMethodsDepositDataProvider
+     */
+    public function testAvailableMethodsDeposit(string $login, array $expected): void
+    {
+        $user = $this->userManager->findByLogin($login);
+        $methods = array_map(function (Method $method) {
+            return $method->getName();
+        }, $this->userService->getAvailableMethods($user));
+
+        static::assertSame($expected, $methods);
+    }
 
     public function availableMethodsWithdrawDataProvider(): array
     {
         return [
-            'ru_rub_0' => [
+            'ru_rub_0'    => [
                 MultipleUsersFixture::RU_RUB_0,
                 [],
             ],
-            'ru_rub_100' => [
+            'ru_rub_100'  => [
                 MultipleUsersFixture::RU_RUB_100,
                 [MultipleMethodsFixture::BEELINE, MultipleMethodsFixture::MIR],
             ],
@@ -86,11 +84,11 @@ class UserServiceFixturesTest extends FixturedTestCase
                 MultipleUsersFixture::RU_RUB_1000,
                 [MultipleMethodsFixture::BEELINE, MultipleMethodsFixture::MIR, MultipleMethodsFixture::VISA],
             ],
-            'ge_eur_100' => [
+            'ge_eur_100'  => [
                 MultipleUsersFixture::GE_EUR_100,
                 [MultipleMethodsFixture::VISA, MultipleMethodsFixture::SOFORT],
             ],
-            'by_user' => [
+            'by_user'     => [
                 MultipleUsersFixture::BY_RUB_100,
                 [],
             ],
@@ -102,7 +100,7 @@ class UserServiceFixturesTest extends FixturedTestCase
      */
     public function testAvailableMethodsWithdraw(string $login, array $expected): void
     {
-        $user = $this->userManager->findByLogin($login);
+        $user    = $this->userManager->findByLogin($login);
         $methods = array_map(function (Method $method) {
             return $method->getName();
         }, $this->userService->getAvailableMethods($user, Direction::WITHDRAW));
