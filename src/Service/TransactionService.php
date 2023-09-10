@@ -146,6 +146,10 @@ class TransactionService
      */
     public function isAllowedTransactionCreate(Transaction $transaction): bool
     {
+        if ($transaction->getStatus() !== Status::NEW) {
+            throw new UnprocessableEntityHttpException('Incorrect status');
+        }
+
         if (!$this->methodManager->isAllowedForUser($transaction->getMethod(), $transaction->getPayer())) {
             throw new UnprocessableEntityHttpException("Method {$transaction->getMethod()->getName()} is not allowed for user");
         }

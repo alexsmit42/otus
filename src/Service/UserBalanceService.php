@@ -67,7 +67,7 @@ class UserBalanceService
     {
         $userAmount = $this->exchangeService->convertAmount($amount, $currency, $user->getCurrency());
 
-        if ($this->isBalanceSufficient($user, $amount, $currency)) {
+        if (!$this->isBalanceSufficient($user, $amount, $currency)) {
             return null;
         }
 

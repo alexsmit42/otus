@@ -8,6 +8,7 @@ use App\Entity\Currency;
 use App\Entity\User;
 use App\Enum\Direction;
 use App\Repository\UserRepository;
+use App\Service\ExchangeService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -120,8 +121,10 @@ class UserManager
         /** @var UserRepository $userRepository */
         $userRepository = $this->entityManager->getRepository(User::class);
 
+        $defaultCurrencyBalance = (new ExchangeService())->convertAmountToBaseCurrency($user->getBalance(), $user->getCurrency());
+
         if ($direction === Direction::WITHDRAW) {
-            return $userRepository->findAvailableMethodsForWithdraw($user);
+            return $userRepository->findAvailableMethodsForWithdraw($user, $defaultCurrencyBalance);
         }
 
         return $userRepository->findAvailableMethodsForDeposit($user);

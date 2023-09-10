@@ -37,5 +37,17 @@ services:
     arguments:
       - "[%%level_name%%]: [%%datetime%%] %%message%%\n"
 
+  redis_client:
+    class: Redis
+    factory: Symfony\Component\Cache\Adapter\RedisAdapter::createConnection
+    arguments:
+      - '%env(REDIS_DSN)%'
+
+  redis_adapter:
+    class: Symfony\Component\Cache\Adapter\RedisTagAwareAdapter
+    arguments:
+      - '@redis_client'
+      - 'my_app'
+
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
